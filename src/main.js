@@ -609,18 +609,7 @@ function tick() {
         incorrectCount += 1;
         lastWrongMidi = midi;
         lastWrongAt = now;
-        if (incorrectCount > 5 && warningEl) {
-          if (!warningShownForNote) {
-            warningShownForNote = true;
-            warningEl.classList.add("show");
-            if (warningTimeout) {
-              clearTimeout(warningTimeout);
-            }
-            warningTimeout = setTimeout(() => {
-              warningEl.classList.remove("show");
-            }, WARNING_DURATION_MS);
-          }
-        }
+        // No warning overlay currently.
       }
     }
   }
