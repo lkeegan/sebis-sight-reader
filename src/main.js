@@ -203,7 +203,7 @@ function drawStaff() {
   }
 
   if (detectedNote && (!targetNote || detectedNote.name !== targetNote.name)) {
-    drawNote(detectedNote, "#f05a5a", true);
+    drawNote(formatDetectedNoteForKey(detectedNote), "#f05a5a", true);
   }
 
   ctx.restore();
@@ -328,10 +328,55 @@ function drawNote(note, color, isDetected = false, jitter = null) {
   }
 }
 
+function formatDetectedNoteForKey(note) {
+  const signature = KEY_SIGNATURES[keySignature];
+  const match = /^([A-GHB])([#b]?)(-?\d+)$/.exec(note.name);
+  if (!signature || !match) return note;
+  const [, letter, accidental, octave] = match;
+
+  let name = note.name;
+  let staffIndex = getStaffIndex(note);
+  let displayAccidental = note.accidental || null;
+
+  if (signature.type === "flat" && accidental === "#") {
+    const flatMap = {
+      "C#": "Db",
+      "D#": "Eb",
+      "F#": "Gb",
+      "G#": "Ab",
+      "A#": "Bb",
+    };
+    const mapped = flatMap[`${letter}#`];
+    if (mapped) {
+      name = `${mapped}${octave}`;
+      staffIndex = noteNameToStaffIndex(name, currentClef.baseNote);
+      displayAccidental = "b";
+    }
+  }
+
+  if (!displayAccidental) {
+    const signatureAcc = signatureAccidentalForLetter(letter, keySignature);
+    if (signatureAcc) {
+      displayAccidental = "natural";
+    }
+  }
+
+  return {
+    ...note,
+    name,
+    staffIndex,
+    accidental: displayAccidental,
+  };
+}
+
 function notesMatch(detected, target) {
   const targetName = effectiveNoteName(target, keySignature);
   const targetMidi = targetName ? noteNameToMidi(targetName) : null;
-  const detectedMidi = detected?.name ? noteNameToMidi(detected.name) : null;
+  const detectedMidi = Number.isFinite(detected?.midi)
+    ? detected.midi
+    : detected?.name
+      ? noteNameToMidi(detected.name)
+      : null;
   if (targetMidi === null || detectedMidi === null) return false;
   return targetMidi === detectedMidi;
 }
