@@ -1,6 +1,15 @@
 import "./style.css";
 import { PitchDetector } from "pitchy";
-import { frequencyToNote, noteNameToStaffIndex, staffIndexToNoteName } from "./note-utils.js";
+import {
+  KEY_SIGNATURES,
+  adjustNoteForKeyChange,
+  effectiveNoteName,
+  frequencyToNote,
+  noteNameToMidi,
+  noteNameToStaffIndex,
+  signatureAccidentalForLetter,
+  staffIndexToNoteName,
+} from "./note-utils.js";
 
 const canvas = document.getElementById("staff");
 const ctx = canvas.getContext("2d");
@@ -76,20 +85,6 @@ let nextNoteAt = 0;
 let matchLock = false;
 let keySignature = "natural";
 
-const KEY_SIGNATURES = {
-  natural: { type: "natural", count: 0 },
-  sharp: { type: "sharp", count: 1 },
-  sharp2: { type: "sharp", count: 2 },
-  sharp3: { type: "sharp", count: 3 },
-  sharp4: { type: "sharp", count: 4 },
-  sharp5: { type: "sharp", count: 5 },
-  flat: { type: "flat", count: 1 },
-  flat2: { type: "flat", count: 2 },
-  flat3: { type: "flat", count: 3 },
-  flat4: { type: "flat", count: 4 },
-  flat5: { type: "flat", count: 5 },
-};
-
 const KEY_SIGNATURE_POSITIONS = {
   treble: {
     sharps: [8, 5, 9, 6, 3, 7, 4], // F, C, G, D, A, E, B
@@ -101,11 +96,22 @@ const KEY_SIGNATURE_POSITIONS = {
   },
 };
 
+
 function buildNotePool() {
   const pool = [];
   for (let index = -6; index <= 12; index += 1) {
-    const name = staffIndexToNoteName(index, currentClef.baseNote);
-    pool.push({ name, staffIndex: index });
+    const baseName = staffIndexToNoteName(index, currentClef.baseNote);
+    pool.push({ name: baseName, staffIndex: index });
+
+    const match = /^([A-GH])(\d+)$/.exec(baseName);
+    if (!match) continue;
+    const [, letter, octave] = match;
+    const sharpName = `${letter}#${octave}`;
+    pool.push({ name: sharpName, staffIndex: index, accidental: "#" });
+
+    const flatLetter = letter === "H" ? "B" : letter;
+    const flatName = `${flatLetter}b${octave}`;
+    pool.push({ name: flatName, staffIndex: index, accidental: "b" });
   }
   return pool;
 }
@@ -187,7 +193,7 @@ function drawStaff() {
   drawKeySignature();
 
   if (targetNote) {
-    const isMatch = detectedNote && detectedNote.name === targetNote.name;
+    const isMatch = detectedNote && notesMatch(detectedNote, targetNote);
     drawNote(
       targetNote,
       isMatch ? "#2fbf71" : "#1c1b1f",
@@ -249,6 +255,7 @@ function drawKeySignature() {
 }
 
 function setKeySignature(nextSignature) {
+  const previousSignature = keySignature;
   keySignature = nextSignature;
   sigNaturalBtn.classList.toggle("active", keySignature === "natural");
   sigNaturalBtn.setAttribute("aria-pressed", keySignature === "natural");
@@ -272,6 +279,9 @@ function setKeySignature(nextSignature) {
   sigFlat4Btn.setAttribute("aria-pressed", keySignature === "flat4");
   sigFlat5Btn.classList.toggle("active", keySignature === "flat5");
   sigFlat5Btn.setAttribute("aria-pressed", keySignature === "flat5");
+  if (targetNote) {
+    targetNote = adjustNoteForKeyChange(targetNote, previousSignature, keySignature, currentClef.baseNote);
+  }
   drawStaff();
 }
 
@@ -307,10 +317,23 @@ function drawNote(note, color, isDetected = false, jitter = null) {
   ctx.stroke();
 
   if (note.accidental) {
-    ctx.font = "18px serif";
+    ctx.font = note.accidental === "b" ? "57px serif" : "42px serif";
     ctx.fillStyle = color;
-    ctx.fillText(note.accidental === "b" ? "♭" : "#", x - 22, y + 6);
+    const symbol =
+      note.accidental === "b" ? "♭" : note.accidental === "natural" ? "♮" : "#";
+    const xOffset = note.accidental === "b" ? 34 : 34;
+    const yOffset = note.accidental === "b" ? 6 : 14;
+    const adjustedY = note.accidental === "natural" ? yOffset - STAFF.lineGap * 0.5 : yOffset;
+    ctx.fillText(symbol, x - xOffset, y + adjustedY);
   }
+}
+
+function notesMatch(detected, target) {
+  const targetName = effectiveNoteName(target, keySignature);
+  const targetMidi = targetName ? noteNameToMidi(targetName) : null;
+  const detectedMidi = detected?.name ? noteNameToMidi(detected.name) : null;
+  if (targetMidi === null || detectedMidi === null) return false;
+  return targetMidi === detectedMidi;
 }
 
 function getCelebrationJitter() {

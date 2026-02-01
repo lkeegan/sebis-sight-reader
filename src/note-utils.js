@@ -1,6 +1,21 @@
 export const STAFF_BASE_NOTE = { letterIndex: 2, octave: 4 }; // Treble: E4 on the bottom line.
 export const LETTERS = ["C", "D", "E", "F", "G", "A", "H"];
 export const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "H"];
+export const SHARP_ORDER = ["F", "C", "G", "D", "A", "E", "H"];
+export const FLAT_ORDER = ["H", "E", "A", "D", "G", "C", "F"];
+export const KEY_SIGNATURES = {
+  natural: { type: "natural", count: 0 },
+  sharp: { type: "sharp", count: 1 },
+  sharp2: { type: "sharp", count: 2 },
+  sharp3: { type: "sharp", count: 3 },
+  sharp4: { type: "sharp", count: 4 },
+  sharp5: { type: "sharp", count: 5 },
+  flat: { type: "flat", count: 1 },
+  flat2: { type: "flat", count: 2 },
+  flat3: { type: "flat", count: 3 },
+  flat4: { type: "flat", count: 4 },
+  flat5: { type: "flat", count: 5 },
+};
 
 export function parseNoteName(name) {
   const match = /^([A-GHB])([#b]?)(-?\d+)$/.exec(name);
@@ -72,6 +87,91 @@ export function frequencyToNote(frequency) {
     letter: name.replace("#", "").replace("b", ""),
     octave,
   };
+}
+
+export function noteNameToMidi(name) {
+  const match = /^([A-GHB])([#b]?)(-?\d+)$/.exec(name);
+  if (!match) return null;
+  const [, letter, accidental, octaveRaw] = match;
+  const octave = Number(octaveRaw);
+  const baseSemitone = {
+    C: 0,
+    D: 2,
+    E: 4,
+    F: 5,
+    G: 7,
+    A: 9,
+    H: 11,
+    B: 11,
+  }[letter];
+  if (baseSemitone === undefined) return null;
+  let semitone = baseSemitone;
+  if (accidental === "#") semitone += 1;
+  if (accidental === "b") semitone -= 1;
+  return (octave + 1) * 12 + semitone;
+}
+
+export function signatureAccidentalForLetter(letter, signatureKey) {
+  const signature = KEY_SIGNATURES[signatureKey];
+  if (!signature || signature.count === 0) return null;
+  const order = signature.type === "sharp" ? SHARP_ORDER : FLAT_ORDER;
+  const affected = new Set(order.slice(0, signature.count));
+  if (!affected.has(letter)) return null;
+  return signature.type === "sharp" ? "#" : "b";
+}
+
+export function effectiveNoteName(note, signatureKey) {
+  if (!note?.name) return null;
+  const match = /^([A-GHB])([#b]?)(-?\d+)$/.exec(note.name);
+  if (!match) return note.name;
+  const [, letter, accidental, octave] = match;
+  if (note.accidental === "natural") {
+    return `${letter}${octave}`;
+  }
+  if (accidental) {
+    return note.name;
+  }
+  const signature = KEY_SIGNATURES[signatureKey];
+  if (!signature || signature.count === 0) return note.name;
+  const order = signature.type === "sharp" ? SHARP_ORDER : FLAT_ORDER;
+  const affected = new Set(order.slice(0, signature.count));
+  if (!affected.has(letter)) return note.name;
+  const applied = signature.type === "sharp" ? "#" : "b";
+  return `${letter}${applied}${octave}`;
+}
+
+export function adjustNoteForKeyChange(note, previousSignature, nextSignature, baseNote = STAFF_BASE_NOTE) {
+  if (!note) return note;
+  const staffIndex =
+    Number.isFinite(note.staffIndex) ? note.staffIndex : noteNameToStaffIndex(note.name, baseNote);
+  if (!Number.isFinite(staffIndex)) return note;
+  const previousMidi = noteNameToMidi(effectiveNoteName(note, previousSignature));
+  if (previousMidi === null) return note;
+  const baseName = staffIndexToNoteName(staffIndex, baseNote);
+  const match = /^([A-GH])(\d+)$/.exec(baseName);
+  if (!match) return note;
+  const [, letter, octave] = match;
+  const flatLetter = letter === "H" ? "B" : letter;
+  const candidates = [
+    { acc: null, name: baseName, midi: noteNameToMidi(baseName) },
+    { acc: "#", name: `${letter}#${octave}`, midi: noteNameToMidi(`${letter}#${octave}`) },
+    { acc: "b", name: `${flatLetter}b${octave}`, midi: noteNameToMidi(`${flatLetter}b${octave}`) },
+  ];
+  const chosen = candidates.find((candidate) => candidate.midi === previousMidi) || candidates[0];
+  const signatureAcc = signatureAccidentalForLetter(letter, nextSignature);
+
+  let name = baseName;
+  let accidental = null;
+  if (chosen.acc === null) {
+    accidental = signatureAcc ? "natural" : null;
+  } else if (chosen.acc === signatureAcc) {
+    accidental = null;
+  } else {
+    name = chosen.name;
+    accidental = chosen.acc;
+  }
+
+  return { ...note, name, staffIndex, accidental };
 }
 
 function bitReverse(value, bits) {
