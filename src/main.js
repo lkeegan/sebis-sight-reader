@@ -101,6 +101,7 @@ let lastWrongAt = 0;
 const WRONG_COOLDOWN_MS = 350;
 const WARNING_DURATION_MS = 2000;
 let warningTimeout = null;
+let warningShownForNote = false;
 let noteMode = "white";
 
 const KEY_SIGNATURE_POSITIONS = {
@@ -157,6 +158,7 @@ function resizeCanvas() {
 function pickRandomNote() {
   const pick = notePool[Math.floor(Math.random() * notePool.length)];
   targetNote = { ...pick };
+  warningShownForNote = false;
   drawStaff();
 }
 
@@ -169,6 +171,7 @@ function setTargetByIndex(index) {
   const name = staffIndexToNoteName(index, currentClef.baseNote);
   const note = notePool.find((entry) => entry.name === name) || { name, staffIndex: index };
   targetNote = { ...note };
+  warningShownForNote = false;
   drawStaff();
 }
 
@@ -425,6 +428,7 @@ function triggerCelebration() {
   incorrectCount = 0;
   lastWrongMidi = null;
   lastWrongAt = 0;
+  warningShownForNote = false;
   if (warningEl) {
     warningEl.classList.remove("show");
   }
@@ -582,13 +586,16 @@ function tick() {
         lastWrongMidi = midi;
         lastWrongAt = now;
         if (incorrectCount > 5 && warningEl) {
-          warningEl.classList.add("show");
-          if (warningTimeout) {
-            clearTimeout(warningTimeout);
+          if (!warningShownForNote) {
+            warningShownForNote = true;
+            warningEl.classList.add("show");
+            if (warningTimeout) {
+              clearTimeout(warningTimeout);
+            }
+            warningTimeout = setTimeout(() => {
+              warningEl.classList.remove("show");
+            }, WARNING_DURATION_MS);
           }
-          warningTimeout = setTimeout(() => {
-            warningEl.classList.remove("show");
-          }, WARNING_DURATION_MS);
         }
       }
     }
