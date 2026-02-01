@@ -90,7 +90,7 @@ body {
 }
 
 .note-mode-toggle .sig-btn {
-  font-size: clamp(0.55rem, 1.2vw, 0.8rem);
+  font-size: clamp(0.83rem, 1.8vw, 1.2rem);
 }
 
 .clef-toggle,
