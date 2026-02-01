@@ -100,6 +100,25 @@ body {
   display: grid;
 }
 
+.flow-step.clef-step {
+  place-items: center;
+  text-align: center;
+  gap: 18px;
+}
+
+.flow-title {
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 700;
+}
+
+.flow-image {
+  width: clamp(180px, 38vw, 420px);
+  height: auto;
+  display: block;
+  border-radius: 20px;
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.18);
+}
+
 .note-mode-toggle .sig-btn {
   font-size: clamp(0.83rem, 1.8vw, 1.2rem);
 }
