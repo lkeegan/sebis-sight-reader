@@ -7,7 +7,7 @@
   </head>
   <body>
     <div class="app">
-      <header class="hero">
+      <header class="hero hidden">
         <div class="controls">
           <div class="flow-step clef-step active" role="group" aria-label="Choose clef">
             <img class="flow-image" src="/assets/monkey-piano.jpg" alt="Monkey at a piano" />
@@ -69,6 +69,16 @@
           <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQgAAAAA" type="audio/wav" />
         </audio>
       </main>
+
+      <footer class="session-bar hidden" id="session-bar">
+        <div class="progress-wrap">
+          <div class="progress-label" id="progress-label">0 / 10</div>
+          <div class="progress-track">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+        </div>
+        <button id="restart-flow" class="ghost">Start again</button>
+      </footer>
 
     </div>
 
