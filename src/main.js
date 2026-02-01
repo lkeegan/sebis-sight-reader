@@ -497,6 +497,9 @@ function setFlow(step) {
   micFallbackBtn?.classList.toggle("hidden", !inSession);
   controlsEl?.classList.toggle("hidden", inSession);
   sessionActive = step === "session";
+  if (inSession) {
+    requestAnimationFrame(resizeCanvas);
+  }
 }
 
 async function startListening() {
