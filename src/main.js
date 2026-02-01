@@ -36,6 +36,8 @@ const statusEl = document.getElementById("status");
 const celebrationEl = document.getElementById("celebration");
 const micFallbackBtn = document.getElementById("mic-fallback");
 const milestoneEl = document.getElementById("milestone");
+const confettiCanvas = document.getElementById("confetti-canvas");
+const confettiInstance = confettiCanvas ? confetti.create(confettiCanvas, { resize: true, useWorker: true }) : confetti;
 const milestoneSound = document.getElementById("milestone-sound");
 const warningEl = document.getElementById("warning");
 
@@ -441,7 +443,7 @@ function triggerMilestone() {
   const end = performance.now() + 3000;
   const confettiColors = ["#e24a4a", "#1e6bff", "#ffffff"];
   (function burst() {
-    confetti({
+    confettiInstance({
       particleCount: 14,
       spread: 90,
       startVelocity: 40,
