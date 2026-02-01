@@ -7,13 +7,13 @@ A kid-friendly sight-reading web app that listens for notes and gives instant fe
 1. Install dependencies:
 
 ```
-npm install
+pnpm install
 ```
 
 2. Start the dev server:
 
 ```
-npm run dev
+pnpm dev
 ```
 
 3. Open the URL shown in the terminal (typically `http://localhost:5173`).
@@ -21,17 +21,17 @@ npm run dev
 ## Tests
 
 ```
-npm test
+pnpm test
 ```
 
 ## Build
 
 ```
-npm run build
+pnpm build
 ```
 
 ## Preview the build
 
 ```
-npm run preview
+pnpm preview
 ```
