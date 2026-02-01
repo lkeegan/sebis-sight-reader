@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sebi's Sight-Reader</title>
+    <script type="module" crossorigin src="/sebis-sight-reader/assets/index-D2Kog0DA.js"></script>
+    <link rel="stylesheet" crossorigin href="/sebis-sight-reader/assets/index-CoGvdp5D.css">
+  </head>
+  <body>
+    <div class="app">
+      <header class="hero" id="flow-header">
+        <div class="controls">
+          <div class="flow-step clef-step active" role="group" aria-label="Choose clef">
+            <div class="app-title">Sebi's Sight-Reader</div>
+            <img class="flow-image" src="/sebis-sight-reader/assets/monkey-piano.jpg" alt="Monkey at a piano" />
+            <div class="flow-title">Choose a clef:</div>
+            <div class="clef-toggle">
+              <button id="clef-treble" class="clef-btn active" aria-pressed="true">𝄞</button>
+              <button id="clef-bass" class="clef-btn" aria-pressed="false">𝄢</button>
+            </div>
+          </div>
+          <div class="flow-step signature-toggle key-step" role="group" aria-label="Choose key signature">
+            <div class="app-title">Sebi's Sight-Reader</div>
+            <img class="flow-image" src="/sebis-sight-reader/assets/monkey-piano.jpg" alt="Monkey at a piano" />
+            <div class="flow-title">Choose a key signature:</div>
+            <div class="signature-buttons">
+              <button id="sig-natural" class="sig-btn active" aria-pressed="true">
+                <span class="sig-icon sig-natural">♮</span>
+              </button>
+              <button id="sig-sharp" class="sig-btn" aria-pressed="false">
+                <span class="sig-stack sharp">
+                  <span class="sig-mark" style="--x: 0px; --y: -0.25em">♯</span>
+                </span>
+              </button>
+              <button id="sig-flat" class="sig-btn" aria-pressed="false">
+                <span class="sig-stack flat">
+                  <span class="sig-mark" style="--x: 0px; --y: -0.1em">♭</span>
+                </span>
+              </button>
+              <button id="sig-sharp-2" class="sig-btn" aria-pressed="false">
+                <span class="sig-stack sharp">
+                  <span class="sig-mark" style="--x: 0px; --y: -0.25em">♯</span>
+                  <span class="sig-mark" style="--x: 0.45em; --y: 0.1em">♯</span>
+                </span>
+              </button>
+              <button id="sig-flat-2" class="sig-btn" aria-pressed="false">
+                <span class="sig-stack flat">
+                  <span class="sig-mark" style="--x: 0px; --y: -0.1em">♭</span>
+                  <span class="sig-mark" style="--x: 0.45em; --y: -0.45em">♭</span>
+                </span>
+              </button>
+            </div>
+          </div>
+          <div class="flow-step level-toggle level-step" role="group" aria-label="Choose level">
+            <div class="app-title">Sebi's Sight-Reader</div>
+            <img class="flow-image" src="/sebis-sight-reader/assets/monkey-piano.jpg" alt="Monkey at a piano" />
+            <div class="flow-title">Choose a level:</div>
+            <div class="level-buttons">
+              <button id="level-1" class="sig-btn active" aria-pressed="true">Level 1</button>
+              <button id="level-2" class="sig-btn" aria-pressed="false">Level 2</button>
+              <button id="level-3" class="sig-btn" aria-pressed="false">Level 3</button>
+            </div>
+          </div>
+          <div class="status" id="status">Microphone off</div>
+          <button id="mic-fallback" class="primary hidden">ENABLE MICROPHONE</button>
+        </div>
+      </header>
+
+      <main class="stage hidden">
+        <canvas id="staff" width="900" height="420" aria-label="Music staff"></canvas>
+        <div class="celebration" id="celebration" aria-live="polite"></div>
+      </main>
+
+      <footer class="session-bar hidden" id="session-bar">
+        <div class="progress-wrap">
+          <div class="progress-label" id="progress-label">0 / 10</div>
+          <div class="progress-track">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+        </div>
+        <button id="restart-flow" class="ghost">Start again</button>
+      </footer>
+
+    </div>
+
+    <div class="end-overlay" id="end-screen" aria-live="polite">
+      <canvas id="confetti-canvas" aria-hidden="true"></canvas>
+      <div class="end-content">
+        <div class="end-actions">
+          <div class="end-monkey">
+            <img src="/sebis-sight-reader/assets/monkey-celebrate.png" alt="Happy monkey" />
+          </div>
+          <div class="end-text">Well done!</div>
+          <button id="redo-session" class="primary">Play again</button>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>
