@@ -5,7 +5,9 @@ import {
   shouldEndSession,
   noteNameToMidi,
   noteNameToStaffIndex,
+  applyKeySignatureToLetter,
   STAFF_BASE_NOTE,
+  notesMatchByMidi,
 } from "../src/note-utils.js";
 
 describe("key signature adjustments", () => {
@@ -106,6 +108,18 @@ describe("key signature adjustments", () => {
   it("applies key signature accidentals when no explicit accidental is set", () => {
     expect(effectiveNoteName({ name: "F4" }, "sharp")).toBe("F#4");
     expect(effectiveNoteName({ name: "H4" }, "flat")).toBe("Hb4");
+  });
+
+  it("reports the altered letter when key signatures apply", () => {
+    expect(applyKeySignatureToLetter("F", "sharp")).toBe("F#");
+    expect(applyKeySignatureToLetter("H", "flat")).toBe("Hb");
+    expect(applyKeySignatureToLetter("C", "flat")).toBe("C");
+  });
+
+  it("matches enharmonic equivalents by MIDI", () => {
+    const target = { name: "Db4" };
+    const detected = { name: "C#4" };
+    expect(notesMatchByMidi(detected, target, "natural")).toBe(true);
   });
 
   it("treats enharmonic equivalents as the same pitch", () => {

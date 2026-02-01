@@ -5,14 +5,14 @@ import {
   DEFAULT_SESSION_NOTES,
   adjustNoteForKeyChange,
   buildNotePoolForLevel,
-  effectiveNoteName,
   frequencyToNote,
+  notesMatchByMidi,
   noteNameToMidi,
   noteNameToStaffIndex,
-  shouldEndSession,
 } from "./note-utils.js";
 import { AUDIO_CONFIG, CLEF_STYLE, CLEFS, KEY_SIGNATURE_POSITIONS, STAFF_DEFAULT } from "./config.js";
 import { createStaffRenderer } from "./staff-renderer.js";
+import { recordCorrectNote } from "./session-state.js";
 
 const dom = {
   canvas: document.getElementById("staff"),
@@ -124,7 +124,7 @@ function pickRandomNote() {
 }
 
 function drawStaff() {
-  const isMatch = detectedNote && targetNote && notesMatch(detectedNote, targetNote);
+  const isMatch = detectedNote && targetNote && notesMatchByMidi(detectedNote, targetNote, keySignature);
   renderer.draw({
     clef: currentClef,
     keySignature,
@@ -150,18 +150,6 @@ function setKeySignature(nextSignature) {
 }
 
 
-function notesMatch(detected, target) {
-  const targetName = effectiveNoteName(target, keySignature);
-  const targetMidi = targetName ? noteNameToMidi(targetName) : null;
-  const detectedMidi = Number.isFinite(detected?.midi)
-    ? detected.midi
-    : detected?.name
-      ? noteNameToMidi(detected.name)
-      : null;
-  if (targetMidi === null || detectedMidi === null) return false;
-  return targetMidi === detectedMidi;
-}
-
 function getCelebrationJitter() {
   const now = performance.now();
   if (now > celebrationUntil) return null;
@@ -177,18 +165,19 @@ function triggerCelebration() {
   const now = performance.now();
   celebrationUntil = now + 700;
   nextNoteAt = now + 1000;
-  matchLock = true;
-  inputLocked = true;
   dom.celebration.textContent = "Well done!";
   dom.celebration.classList.add("show");
 
   correctCount += 1;
-  notesCompleted += 1;
+  const nextState = recordCorrectNote({ notesCompleted, matchLock, inputLocked }, NOTES_PER_SESSION);
+  notesCompleted = nextState.notesCompleted;
+  matchLock = nextState.matchLock;
+  inputLocked = nextState.inputLocked;
   updateProgress();
   incorrectCount = 0;
   lastWrongMidi = null;
   lastWrongAt = 0;
-  if (shouldEndSession(notesCompleted, NOTES_PER_SESSION)) {
+  if (nextState.shouldEnd) {
     if (nextNoteTimer) {
       clearTimeout(nextNoteTimer);
     }
@@ -383,7 +372,7 @@ function tick() {
   drawStaff();
 
   if (!matchLock && detectedNote && targetNote) {
-    if (notesMatch(detectedNote, targetNote)) {
+    if (notesMatchByMidi(detectedNote, targetNote, keySignature)) {
       triggerCelebration();
     } else {
       const midi = Number.isFinite(detectedNote.midi) ? detectedNote.midi : noteNameToMidi(detectedNote.name);

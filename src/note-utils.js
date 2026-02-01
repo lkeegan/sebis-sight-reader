@@ -121,6 +121,12 @@ export function shouldEndSession(completed, total = DEFAULT_SESSION_NOTES) {
   return completed >= total;
 }
 
+export function applyKeySignatureToLetter(letter, signatureKey) {
+  const signatureAcc = signatureAccidentalForLetter(letter, signatureKey);
+  if (!signatureAcc) return letter;
+  return `${letter}${signatureAcc}`;
+}
+
 export function frequencyToNote(frequency) {
   const midi = Math.round(69 + 12 * Math.log2(frequency / 440));
   const name = NOTE_NAMES[((midi % 12) + 12) % 12];
@@ -186,6 +192,18 @@ export function effectiveNoteName(note, signatureKey) {
   if (!affected.has(letter)) return note.name;
   const applied = signature.type === "sharp" ? "#" : "b";
   return `${letter}${applied}${octave}`;
+}
+
+export function notesMatchByMidi(detected, target, signatureKey) {
+  const targetName = effectiveNoteName(target, signatureKey);
+  const targetMidi = targetName ? noteNameToMidi(targetName) : null;
+  const detectedMidi = Number.isFinite(detected?.midi)
+    ? detected.midi
+    : detected?.name
+      ? noteNameToMidi(detected.name)
+      : null;
+  if (targetMidi === null || detectedMidi === null) return false;
+  return targetMidi === detectedMidi;
 }
 
 export function adjustNoteForKeyChange(note, previousSignature, nextSignature, baseNote = STAFF_BASE_NOTE) {
