@@ -468,6 +468,39 @@ function triggerMilestone() {
   }, 3000);
 }
 
+function endSession() {
+  sessionActive = false;
+  matchLock = true;
+  triggerMilestone();
+  setTimeout(() => {
+    if (endScreenEl) {
+      endScreenEl.classList.add("show");
+    }
+  }, 3000);
+}
+
+function startSession() {
+  notesCompleted = 0;
+  correctCount = 0;
+  incorrectCount = 0;
+  warningShownForNote = false;
+  sessionActive = true;
+  matchLock = false;
+  notePool = buildNotePool();
+  pickRandomNote();
+}
+
+function setFlow(step) {
+  clefStep?.classList.toggle("active", step === "clef");
+  keyStep?.classList.toggle("active", step === "key");
+  levelStep?.classList.toggle("active", step === "level");
+  stageEl?.classList.toggle("hidden", step !== "session");
+  statusEl?.classList.toggle("hidden", step !== "session");
+  if (step === "session") {
+    sessionActive = true;
+  }
+}
+
 async function startListening() {
   if (listening) {
     return;
