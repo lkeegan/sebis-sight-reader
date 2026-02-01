@@ -641,61 +641,76 @@ function setClef(nextClef) {
   trebleBtn.setAttribute("aria-pressed", currentClef === CLEFS.treble);
   bassBtn.classList.toggle("active", currentClef === CLEFS.bass);
   bassBtn.setAttribute("aria-pressed", currentClef === CLEFS.bass);
-  notePool = buildNotePool();
-  if (targetNote) {
-    const index = noteNameToStaffIndex(targetNote.name, currentClef.baseNote);
-    if (Number.isFinite(index)) {
-      setTargetByIndex(index);
-      return;
-    }
-  }
-  pickRandomNote();
 }
 
-function setNoteMode(nextMode) {
-  noteMode = nextMode;
-  modeWhiteBtn.classList.toggle("active", noteMode === "white");
-  modeWhiteBtn.setAttribute("aria-pressed", noteMode === "white");
-  modeBlackBtn.classList.toggle("active", noteMode === "black");
-  modeBlackBtn.setAttribute("aria-pressed", noteMode === "black");
-  modeAllBtn.classList.toggle("active", noteMode === "all");
-  modeAllBtn.setAttribute("aria-pressed", noteMode === "all");
-  notePool = buildNotePool();
-  pickRandomNote();
+function setLevel(nextLevel) {
+  currentLevel = nextLevel;
+  level1Btn.classList.toggle("active", currentLevel === 1);
+  level1Btn.setAttribute("aria-pressed", currentLevel === 1);
+  level2Btn.classList.toggle("active", currentLevel === 2);
+  level2Btn.setAttribute("aria-pressed", currentLevel === 2);
+  level3Btn.classList.toggle("active", currentLevel === 3);
+  level3Btn.setAttribute("aria-pressed", currentLevel === 3);
 }
 
-trebleBtn.addEventListener("click", () => setClef(CLEFS.treble));
-bassBtn.addEventListener("click", () => setClef(CLEFS.bass));
+trebleBtn.addEventListener("click", () => {
+  setClef(CLEFS.treble);
+  setFlow("key");
+});
+bassBtn.addEventListener("click", () => {
+  setClef(CLEFS.bass);
+  setFlow("key");
+});
 sigSharpBtn.addEventListener("click", () => {
   setKeySignature("sharp");
+  setFlow("level");
 });
 sigSharp2Btn.addEventListener("click", () => {
   setKeySignature("sharp2");
+  setFlow("level");
 });
 sigFlatBtn.addEventListener("click", () => {
   setKeySignature("flat");
+  setFlow("level");
 });
 sigFlat2Btn.addEventListener("click", () => {
   setKeySignature("flat2");
+  setFlow("level");
 });
 sigNaturalBtn.addEventListener("click", () => {
   setKeySignature("natural");
+  setFlow("level");
 });
-modeWhiteBtn.addEventListener("click", () => {
-  setNoteMode("white");
+level1Btn.addEventListener("click", () => {
+  setLevel(1);
+  setFlow("session");
+  startSession();
 });
-modeBlackBtn.addEventListener("click", () => {
-  setNoteMode("black");
+level2Btn.addEventListener("click", () => {
+  setLevel(2);
+  setFlow("session");
+  startSession();
 });
-modeAllBtn.addEventListener("click", () => {
-  setNoteMode("all");
+level3Btn.addEventListener("click", () => {
+  setLevel(3);
+  setFlow("session");
+  startSession();
+});
+redoBtn?.addEventListener("click", () => {
+  endScreenEl?.classList.remove("show");
+  setFlow("session");
+  startSession();
+});
+restartBtn?.addEventListener("click", () => {
+  endScreenEl?.classList.remove("show");
+  setFlow("clef");
 });
 micFallbackBtn.addEventListener("click", startListening);
 window.addEventListener("resize", resizeCanvas);
 
 resizeCanvas();
-notePool = buildNotePool();
 setClef(CLEFS.treble);
 setKeySignature("natural");
-setNoteMode("white");
+setLevel(1);
+setFlow("clef");
 startListening();
