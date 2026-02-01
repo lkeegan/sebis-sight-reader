@@ -520,3 +520,9 @@ setKeySignature("natural");
 setLevel(1);
 setFlow("clef");
 startListening();
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js");
+  });
+}
