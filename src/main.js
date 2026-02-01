@@ -293,14 +293,10 @@ function setKeySignature(nextSignature) {
   sigSharpBtn.setAttribute("aria-pressed", keySignature === "sharp");
   sigSharp2Btn.classList.toggle("active", keySignature === "sharp2");
   sigSharp2Btn.setAttribute("aria-pressed", keySignature === "sharp2");
-  sigSharp3Btn.classList.toggle("active", keySignature === "sharp3");
-  sigSharp3Btn.setAttribute("aria-pressed", keySignature === "sharp3");
   sigFlatBtn.classList.toggle("active", keySignature === "flat");
   sigFlatBtn.setAttribute("aria-pressed", keySignature === "flat");
   sigFlat2Btn.classList.toggle("active", keySignature === "flat2");
   sigFlat2Btn.setAttribute("aria-pressed", keySignature === "flat2");
-  sigFlat3Btn.classList.toggle("active", keySignature === "flat3");
-  sigFlat3Btn.setAttribute("aria-pressed", keySignature === "flat3");
   if (targetNote) {
     targetNote = adjustNoteForKeyChange(targetNote, previousSignature, keySignature, currentClef.baseNote);
   }
@@ -676,17 +672,11 @@ sigSharpBtn.addEventListener("click", () => {
 sigSharp2Btn.addEventListener("click", () => {
   setKeySignature("sharp2");
 });
-sigSharp3Btn.addEventListener("click", () => {
-  setKeySignature("sharp3");
-});
 sigFlatBtn.addEventListener("click", () => {
   setKeySignature("flat");
 });
 sigFlat2Btn.addEventListener("click", () => {
   setKeySignature("flat2");
-});
-sigFlat3Btn.addEventListener("click", () => {
-  setKeySignature("flat3");
 });
 sigNaturalBtn.addEventListener("click", () => {
   setKeySignature("natural");
