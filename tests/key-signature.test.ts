@@ -135,6 +135,11 @@ describe("key signature adjustments", () => {
     expect(noteNameToMidi("Gb3")).toBe(noteNameToMidi("F#3"));
   });
 
+  it("treats double accidentals as enharmonic equivalents", () => {
+    expect(noteNameToMidi("C##4")).toBe(noteNameToMidi("D4"));
+    expect(noteNameToMidi("Ebb4")).toBe(noteNameToMidi("D4"));
+  });
+
   it("ends a session after the configured number of notes", () => {
     expect(shouldEndSession(9, 10)).toBe(false);
     expect(shouldEndSession(10, 10)).toBe(true);

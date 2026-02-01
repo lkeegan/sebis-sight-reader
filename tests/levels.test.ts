@@ -43,6 +43,16 @@ describe("level note pools", () => {
     expect(names.has("C#4")).toBe(true);
   });
 
+  it("treble level 4 includes double accidentals in the same range as level 3", () => {
+    const pool = buildNotePoolForLevel("treble", trebleBase, 4);
+    const names = new Set(pool.map((note) => note.name));
+    expect(names.has("C##4")).toBe(true);
+    expect(names.has("Dbb4")).toBe(true);
+    const range3 = getRangeForLevel("treble", trebleBase, 3);
+    const range4 = getRangeForLevel("treble", trebleBase, 4);
+    expect(range4).toEqual(range3);
+  });
+
   it("bass level 1 is E3 to C4, naturals only", () => {
     const pool = buildNotePoolForLevel("bass", bassBase, 1);
     const names = new Set(pool.map((note) => note.name));
@@ -71,5 +81,12 @@ describe("level note pools", () => {
     expect(names.has(minName)).toBe(true);
     expect(names.has(maxName)).toBe(true);
     expect(names.has("Bb3")).toBe(true);
+  });
+
+  it("bass level 4 includes double accidentals in the same range as level 3", () => {
+    const pool = buildNotePoolForLevel("bass", bassBase, 4);
+    const names = new Set(pool.map((note) => note.name));
+    expect(names.has("F##3")).toBe(true);
+    expect(names.has("Ebb3")).toBe(true);
   });
 });

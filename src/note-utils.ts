@@ -11,7 +11,7 @@ export type KeySignatureKey =
   | "flat3"
   | "flat4"
   | "flat5";
-export type Accidental = "#" | "b" | "natural";
+export type Accidental = "#" | "b" | "##" | "bb" | "natural";
 
 export interface BaseNote {
   letterIndex: number;
@@ -50,7 +50,7 @@ export const KEY_SIGNATURES: Record<KeySignatureKey, { type: "natural" | "sharp"
 export const DEFAULT_SESSION_NOTES = 10;
 
 export function parseNoteName(name: string) {
-  const match = /^([A-GHB])([#b]?)(-?\d+)$/.exec(name);
+  const match = /^([A-GHB])([#b]{0,2})(-?\d+)$/.exec(name);
   if (!match) {
     return null;
   }
@@ -151,6 +151,9 @@ export function buildNotePoolForLevel(clefName: ClefName, baseNote: BaseNote, le
     pool.push({ name: `${letter}#${octave}`, staffIndex: index, accidental: "#" });
     const flatLetter = letter === "H" ? "B" : letter;
     pool.push({ name: `${flatLetter}b${octave}`, staffIndex: index, accidental: "b" });
+    if (level < 4) continue;
+    pool.push({ name: `${letter}##${octave}`, staffIndex: index, accidental: "##" });
+    pool.push({ name: `${flatLetter}bb${octave}`, staffIndex: index, accidental: "bb" });
   }
   return pool;
 }
@@ -182,7 +185,7 @@ export function frequencyToNote(frequency: number): Note {
 }
 
 export function noteNameToMidi(name: string) {
-  const match = /^([A-GHB])([#b]?)(-?\d+)$/.exec(name);
+  const match = /^([A-GHB])([#b]{0,2})(-?\d+)$/.exec(name);
   if (!match) return null;
   const [, letter, accidental, octaveRaw] = match;
   const octave = Number(octaveRaw);
@@ -200,6 +203,8 @@ export function noteNameToMidi(name: string) {
   let semitone = baseSemitone;
   if (accidental === "#") semitone += 1;
   if (accidental === "b") semitone -= 1;
+  if (accidental === "##") semitone += 2;
+  if (accidental === "bb") semitone -= 2;
   return (octave + 1) * 12 + semitone;
 }
 
@@ -214,7 +219,7 @@ export function signatureAccidentalForLetter(letter: string, signatureKey: KeySi
 
 export function effectiveNoteName(note: Note, signatureKey: KeySignatureKey) {
   if (!note?.name) return null;
-  const match = /^([A-GHB])([#b]?)(-?\d+)$/.exec(note.name);
+  const match = /^([A-GHB])([#b]{0,2})(-?\d+)$/.exec(note.name);
   if (!match) return note.name;
   const [, letter, accidental, octave] = match;
   if (note.accidental === "natural") {

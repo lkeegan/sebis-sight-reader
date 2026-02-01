@@ -136,7 +136,15 @@ export function createStaffRenderer({
       ctx.font = "72px \"Noto Music\", serif";
       ctx.fillStyle = color;
       const symbol =
-        note.accidental === "b" ? "♭" : note.accidental === "natural" ? "♮" : "♯";
+        note.accidental === "bb"
+          ? "𝄫"
+          : note.accidental === "b"
+            ? "♭"
+            : note.accidental === "natural"
+              ? "♮"
+              : note.accidental === "##"
+                ? "𝄪"
+                : "♯";
       const xOffset = 34;
       const yOffset = note.accidental === "b" ? 8 : 14;
       const adjustedY = note.accidental === "natural" ? yOffset - staff.lineGap * 0.5 : yOffset;
@@ -169,7 +177,7 @@ export function createStaffRenderer({
     keySignature: KeySignatureKey,
   ) => {
     const signature = KEY_SIGNATURES[keySignature];
-    const match = /^([A-GHB])([#b]?)(-?\d+)$/.exec(note.name);
+    const match = /^([A-GHB])([#b]{0,2})(-?\d+)$/.exec(note.name);
     if (!signature || !match) return note;
     const [, letter, accidental, octave] = match;
 

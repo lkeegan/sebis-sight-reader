@@ -30,6 +30,7 @@ const dom = {
   level1: document.getElementById("level-1") as HTMLButtonElement | null,
   level2: document.getElementById("level-2") as HTMLButtonElement | null,
   level3: document.getElementById("level-3") as HTMLButtonElement | null,
+  level4: document.getElementById("level-4") as HTMLButtonElement | null,
   status: document.getElementById("status") as HTMLElement | null,
   celebration: document.getElementById("celebration") as HTMLElement | null,
   micFallback: document.getElementById("mic-fallback") as HTMLButtonElement | null,
@@ -459,6 +460,7 @@ function setLevel(nextLevel: number) {
   setPressed(dom.level1, currentLevel === 1);
   setPressed(dom.level2, currentLevel === 2);
   setPressed(dom.level3, currentLevel === 3);
+  setPressed(dom.level4, currentLevel === 4);
 }
 
 dom.clefTreble?.addEventListener("click", () => {
@@ -501,6 +503,11 @@ dom.level2?.addEventListener("click", () => {
 });
 dom.level3?.addEventListener("click", () => {
   setLevel(3);
+  setFlow("session");
+  startSession();
+});
+dom.level4?.addEventListener("click", () => {
+  setLevel(4);
   setFlow("session");
   startSession();
 });
