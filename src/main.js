@@ -677,11 +677,6 @@ level3Btn.addEventListener("click", () => {
   setFlow("session");
   startSession();
 });
-redoBtn?.addEventListener("click", () => {
-  endScreenEl?.classList.remove("show");
-  setFlow("session");
-  startSession();
-});
 restartBtn?.addEventListener("click", () => {
   setFlow("clef");
 });
