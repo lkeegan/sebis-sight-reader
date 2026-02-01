@@ -50,6 +50,9 @@ const confettiInstance = dom.confettiCanvas
   ? confetti.create(dom.confettiCanvas, { resize: true, useWorker: true })
   : confetti;
 
+const canvas = dom.canvas;
+const stageEl = dom.stage;
+
 const STAFF = {
   left: 110,
   top: 130,
