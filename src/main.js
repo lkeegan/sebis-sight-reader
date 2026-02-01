@@ -697,8 +697,7 @@ restartBtn?.addEventListener("click", () => {
 });
 redoBtn?.addEventListener("click", () => {
   endScreenEl?.classList.remove("show");
-  setFlow("session");
-  startSession();
+  setFlow("clef");
 });
 micFallbackBtn.addEventListener("click", startListening);
 window.addEventListener("resize", resizeCanvas);
