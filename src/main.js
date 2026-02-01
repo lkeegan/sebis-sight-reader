@@ -77,6 +77,43 @@ const CLEFS = {
   },
 };
 
+const UI = {
+  steps: {
+    clef: "clef",
+    key: "key",
+    level: "level",
+    session: "session",
+  },
+};
+
+const AUDIO = {
+  fftSize: 4096,
+  smoothing: 0.8,
+  minHoldMs: 25,
+  minPitchHz: 27.5,
+  maxPitchHz: 4186,
+  octaveTolerance: 0.03,
+  clarityThreshold: 0.9,
+  rmsThreshold: 0.015,
+};
+
+const SESSION = {
+  notesPerSession: DEFAULT_SESSION_NOTES,
+  nextNoteDelayMs: 1000,
+  confettiMs: 3000,
+};
+
+const setPressed = (button, isPressed) => {
+  if (!button) return;
+  button.classList.toggle("active", isPressed);
+  button.setAttribute("aria-pressed", String(isPressed));
+};
+
+const setHidden = (element, hidden) => {
+  if (!element) return;
+  element.classList.toggle("hidden", hidden);
+};
+
 let currentClef = CLEFS.treble;
 let notePool = [];
 
