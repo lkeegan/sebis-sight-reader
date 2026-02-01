@@ -426,6 +426,7 @@ function triggerCelebration() {
 
   correctCount += 1;
   notesCompleted += 1;
+  updateProgress();
   incorrectCount = 0;
   lastWrongMidi = null;
   lastWrongAt = 0;
@@ -489,7 +490,14 @@ function startSession() {
   sessionActive = true;
   matchLock = false;
   notePool = buildNotePool();
+  updateProgress();
   pickRandomNote();
+}
+
+function updateProgress() {
+  if (!progressLabelEl || !progressFillEl) return;
+  progressLabelEl.textContent = `${notesCompleted} / ${NOTES_PER_SESSION}`;
+  progressFillEl.style.width = `${(notesCompleted / NOTES_PER_SESSION) * 100}%`;
 }
 
 function setFlow(step) {
@@ -498,10 +506,12 @@ function setFlow(step) {
   levelStep?.classList.toggle("active", step === "level");
   const inSession = step === "session";
   stageEl?.classList.toggle("hidden", !inSession);
+  sessionBarEl?.classList.toggle("hidden", !inSession);
   statusEl?.classList.toggle("hidden", !inSession);
   micFallbackBtn?.classList.toggle("hidden", !inSession);
   controlsEl?.classList.toggle("hidden", inSession);
   controlsEl?.classList.toggle("clef-only", step !== "session");
+  headerEl?.classList.toggle("hidden", inSession);
   sessionActive = step === "session";
   if (inSession) {
     requestAnimationFrame(resizeCanvas);
