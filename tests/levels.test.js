@@ -51,4 +51,25 @@ describe("level note pools", () => {
     expect(names.has("D3")).toBe(false);
     expect(names.has("C#4")).toBe(false);
   });
+
+  it("bass level 2 adds accidentals within the same range", () => {
+    const pool = buildNotePoolForLevel("bass", bassBase, 2);
+    const names = new Set(pool.map((note) => note.name));
+    expect(names.has("E3")).toBe(true);
+    expect(names.has("C4")).toBe(true);
+    expect(names.has("F#3")).toBe(true);
+    expect(names.has("Gb3")).toBe(true);
+    expect(names.has("D3")).toBe(false);
+  });
+
+  it("bass level 3 expands one octave and includes accidentals", () => {
+    const range = getRangeForLevel("bass", bassBase, 3);
+    const pool = buildNotePoolForLevel("bass", bassBase, 3);
+    const names = new Set(pool.map((note) => note.name));
+    const minName = staffIndexToNoteName(range.minIndex, bassBase);
+    const maxName = staffIndexToNoteName(range.maxIndex, bassBase);
+    expect(names.has(minName)).toBe(true);
+    expect(names.has(maxName)).toBe(true);
+    expect(names.has("Bb3")).toBe(true);
+  });
 });

@@ -77,6 +77,37 @@ describe("key signature adjustments", () => {
     expect(noteNameToMidi(effective)).toBe(noteNameToMidi("G4"));
   });
 
+  it("keeps the same pitch when moving from a sharp key to natural", () => {
+    const staffIndex = noteNameToStaffIndex("F4", STAFF_BASE_NOTE);
+    const result = adjustNoteForKeyChange(
+      { name: "F4", staffIndex },
+      "sharp",
+      "natural",
+      STAFF_BASE_NOTE,
+    );
+    const effective = effectiveNoteName(result, "natural");
+    expect(noteNameToMidi(effective)).toBe(noteNameToMidi("F#4"));
+    expect(result.accidental).toBe("#");
+  });
+
+  it("keeps the same pitch when moving into a flat key", () => {
+    const staffIndex = noteNameToStaffIndex("H4", STAFF_BASE_NOTE);
+    const result = adjustNoteForKeyChange(
+      { name: "H4", staffIndex },
+      "natural",
+      "flat",
+      STAFF_BASE_NOTE,
+    );
+    const effective = effectiveNoteName(result, "flat");
+    expect(noteNameToMidi(effective)).toBe(noteNameToMidi("H4"));
+    expect(result.accidental).toBe("natural");
+  });
+
+  it("applies key signature accidentals when no explicit accidental is set", () => {
+    expect(effectiveNoteName({ name: "F4" }, "sharp")).toBe("F#4");
+    expect(effectiveNoteName({ name: "H4" }, "flat")).toBe("Hb4");
+  });
+
   it("treats enharmonic equivalents as the same pitch", () => {
     expect(noteNameToMidi("Db4")).toBe(noteNameToMidi("C#4"));
     expect(noteNameToMidi("Eb4")).toBe(noteNameToMidi("D#4"));
