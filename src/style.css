@@ -86,7 +86,7 @@ body {
   gap: clamp(10px, 1.6vw, 16px);
   grid-column: 1 / -1;
   justify-items: start;
-  font-size: 0.4em;
+  font-size: 0.35em;
 }
 
 .clef-toggle,
