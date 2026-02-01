@@ -124,15 +124,13 @@ function buildNotePool() {
   const baseMin = -6;
   const baseMax = 12;
   const octaveSteps = 7;
-  const minIndex = noteMode === "all" ? baseMin - octaveSteps : baseMin;
-  const maxIndex = noteMode === "all" ? baseMax + octaveSteps : baseMax;
+  const minIndex = currentLevel >= 2 ? baseMin - octaveSteps : baseMin;
+  const maxIndex = currentLevel >= 2 ? baseMax + octaveSteps : baseMax;
   for (let index = minIndex; index <= maxIndex; index += 1) {
     const baseName = staffIndexToNoteName(index, currentClef.baseNote);
-    if (noteMode !== "black") {
-      pool.push({ name: baseName, staffIndex: index });
-    }
+    pool.push({ name: baseName, staffIndex: index });
 
-    if (noteMode === "white") continue;
+    if (currentLevel < 3) continue;
     const match = /^([A-GH])(\d+)$/.exec(baseName);
     if (!match) continue;
     const [, letter, octave] = match;
