@@ -70,6 +70,13 @@ body {
   display: none;
 }
 
+.controls.clef-only {
+  grid-template-columns: 1fr;
+  justify-items: center;
+  align-content: center;
+  min-height: 70vh;
+}
+
 .clef-toggle {
   display: grid;
   grid-template-columns: repeat(2, minmax(110px, 1fr));

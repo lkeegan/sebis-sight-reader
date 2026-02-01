@@ -496,6 +496,7 @@ function setFlow(step) {
   statusEl?.classList.toggle("hidden", !inSession);
   micFallbackBtn?.classList.toggle("hidden", !inSession);
   controlsEl?.classList.toggle("hidden", inSession);
+  controlsEl?.classList.toggle("clef-only", step === "clef");
   sessionActive = step === "session";
   if (inSession) {
     requestAnimationFrame(resizeCanvas);
