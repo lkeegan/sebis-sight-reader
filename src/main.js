@@ -418,7 +418,6 @@ function triggerCelebration() {
 
 function triggerMilestone() {
   if (!milestoneEl) return;
-  milestoneEl.innerHTML = "<span class=\"milestone-emoji\">🐵🎉</span>";
   milestoneEl.classList.add("show");
   if (milestoneSound) {
     milestoneSound.currentTime = 0;
@@ -426,7 +425,7 @@ function triggerMilestone() {
   }
   setTimeout(() => {
     milestoneEl.classList.remove("show");
-  }, 900);
+  }, 3000);
 }
 
 async function startListening() {

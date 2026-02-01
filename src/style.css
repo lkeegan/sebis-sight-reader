@@ -251,39 +251,98 @@ canvas {
   transform: translateY(0) scale(1);
 }
 
-.milestone {
-  position: absolute;
-  bottom: clamp(10px, 2vw, 22px);
-  left: clamp(14px, 2.4vw, 26px);
-  font-size: clamp(2rem, 6vw, 3.4rem);
+.milestone-overlay {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at center, rgba(255, 245, 215, 0.9), rgba(255, 255, 255, 0.7));
   opacity: 0;
-  transform: translateY(20px) scale(0.8);
-  transition: opacity 0.2s ease;
   pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 40;
 }
 
-.milestone.show {
+.milestone-overlay.show {
   opacity: 1;
-  animation: monkey-jump 0.9s ease-out;
+  pointer-events: auto;
 }
 
-.milestone-emoji {
-  display: inline-block;
-  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.2));
+.milestone-content {
+  display: grid;
+  gap: 12px;
+  place-items: center;
+  text-align: center;
 }
 
-@keyframes monkey-jump {
+.milestone-monkey {
+  width: clamp(220px, 42vw, 520px);
+  filter: drop-shadow(0 18px 22px rgba(0, 0, 0, 0.25));
+  animation: monkey-bounce 3s ease-in-out;
+}
+
+.milestone-monkey img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.milestone-text {
+  font-size: clamp(2rem, 6vw, 4rem);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #1c1b1f;
+}
+
+.confetti {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.confetti::before,
+.confetti::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle, #f36b4b 0 8px, transparent 9px),
+    radial-gradient(circle, #2fbf71 0 7px, transparent 8px),
+    radial-gradient(circle, #f0d96a 0 6px, transparent 7px),
+    radial-gradient(circle, #70b7ff 0 7px, transparent 8px),
+    radial-gradient(circle, #ff9fd6 0 6px, transparent 7px);
+  background-size: 120px 120px;
+  animation: confetti-fall 3s linear infinite;
+  opacity: 0.85;
+}
+
+.confetti::after {
+  background-size: 160px 160px;
+  animation-duration: 2.6s;
+  opacity: 0.6;
+}
+
+@keyframes monkey-bounce {
   0% {
-    transform: translateY(20px) scale(0.8);
+    transform: translateY(60px) scale(0.8);
   }
-  40% {
-    transform: translateY(-24px) scale(1);
+  30% {
+    transform: translateY(-40px) scale(1);
   }
-  70% {
-    transform: translateY(-10px) scale(1.05);
+  60% {
+    transform: translateY(10px) scale(1.05);
   }
   100% {
-    transform: translateY(20px) scale(0.9);
+    transform: translateY(60px) scale(0.9);
+  }
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-60%);
+  }
+  100% {
+    transform: translateY(60%);
   }
 }
 
