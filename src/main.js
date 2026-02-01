@@ -251,7 +251,7 @@ function setFlow(step) {
   setHidden(dom.stage, !inSession);
   setHidden(dom.sessionBar, !inSession);
   setHidden(dom.status, !inSession);
-  setHidden(dom.micFallback, !inSession);
+  setHidden(dom.micFallback, !inSession || listening);
   setHidden(dom.controls, inSession);
   dom.controls?.classList.toggle("clef-only", step !== "session");
   setHidden(dom.header, inSession);
@@ -278,6 +278,7 @@ async function startListening() {
     detector = PitchDetector.forFloat32Array(analyser.fftSize);
     listening = true;
     dom.status.textContent = "Listening…";
+    dom.micFallback?.classList.add("hidden");
     tick();
   } catch (error) {
     dom.status.textContent = "Tap to enable microphone";
