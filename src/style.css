@@ -119,6 +119,12 @@ body {
   font-weight: 700;
 }
 
+.app-title {
+  font-size: clamp(2rem, 4.8vw, 3.6rem);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
 .flow-image {
   width: clamp(180px, 38vw, 420px);
   height: auto;
