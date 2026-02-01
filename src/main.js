@@ -132,6 +132,13 @@ function buildNotePool() {
       baseMin = minIndex;
       baseMax = maxIndex;
     }
+  } else {
+    const minIndex = noteNameToStaffIndex("E3", currentClef.baseNote);
+    const maxIndex = noteNameToStaffIndex("C4", currentClef.baseNote);
+    if (Number.isFinite(minIndex) && Number.isFinite(maxIndex)) {
+      baseMin = minIndex;
+      baseMax = maxIndex;
+    }
   }
   const octaveSteps = 7;
   const minIndex = currentLevel >= 2 ? baseMin - octaveSteps : baseMin;
