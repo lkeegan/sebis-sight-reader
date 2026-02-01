@@ -425,24 +425,16 @@ function triggerCelebration() {
   incorrectCount = 0;
   lastWrongMidi = null;
   lastWrongAt = 0;
-  warningShownForNote = false;
-  if (warningEl) {
-    warningEl.classList.remove("show");
-  }
-  if (correctCount % 5 === 0) {
-    triggerMilestone();
-  }
   if (notesCompleted >= NOTES_PER_SESSION) {
     endSession();
   }
 }
 
-function triggerMilestone() {
-  if (!milestoneEl) return;
-  milestoneEl.classList.add("show");
-  if (milestoneSound) {
-    milestoneSound.currentTime = 0;
-    milestoneSound.play().catch(() => {});
+function endSession() {
+  sessionActive = false;
+  matchLock = true;
+  if (endScreenEl) {
+    endScreenEl.classList.add("show");
   }
   const end = performance.now() + 3000;
   const confettiColors = ["#ff3b3b", "#1f7bff", "#ffffff"];
@@ -461,27 +453,12 @@ function triggerMilestone() {
       requestAnimationFrame(burst);
     }
   })();
-  setTimeout(() => {
-    milestoneEl.classList.remove("show");
-  }, 3000);
-}
-
-function endSession() {
-  sessionActive = false;
-  matchLock = true;
-  triggerMilestone();
-  setTimeout(() => {
-    if (endScreenEl) {
-      endScreenEl.classList.add("show");
-    }
-  }, 3000);
 }
 
 function startSession() {
   notesCompleted = 0;
   correctCount = 0;
   incorrectCount = 0;
-  warningShownForNote = false;
   sessionActive = true;
   matchLock = false;
   notePool = buildNotePool();
