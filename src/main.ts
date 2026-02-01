@@ -538,6 +538,12 @@ if (isStandalonePwa) {
   startListening();
 }
 
+if (document.fonts?.ready) {
+  document.fonts.ready.then(() => {
+    resizeCanvas();
+  });
+}
+
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     const base = import.meta.env.BASE_URL;

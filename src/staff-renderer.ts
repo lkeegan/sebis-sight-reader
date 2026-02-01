@@ -279,18 +279,28 @@ export function createStaffRenderer({
     }
 
     const clefX = staff.left - clefStyle.lineExtension + 12;
-    ctx.font = "72px \"Noto Music\", serif";
+    const clefFontSize = 72;
+    ctx.font = `${clefFontSize}px "Noto Music", serif`;
     ctx.fillStyle = "#1c1b1f";
-    const targetY =
-      staffYForIndex(clef.symbolIndex) - staff.lineGap * clef.symbolOffset;
+    const targetY = staffYForIndex(clef.symbolIndex) - staff.lineGap * clef.symbolOffset;
     const metrics = ctx.measureText(clef.symbol);
     const ascent =
-      metrics.actualBoundingBoxAscent || 0.7 * 72;
+      metrics.actualBoundingBoxAscent ||
+      metrics.fontBoundingBoxAscent ||
+      clefFontSize * 0.8;
     const descent =
-      metrics.actualBoundingBoxDescent || 0.3 * 72;
-    const baselineY = targetY - (descent - ascent) / 2;
-    ctx.textBaseline = "alphabetic";
-    ctx.fillText(clef.symbol, clefX, baselineY);
+      metrics.actualBoundingBoxDescent ||
+      metrics.fontBoundingBoxDescent ||
+      clefFontSize * 0.2;
+    if (ascent + descent === 0) {
+      ctx.textBaseline = "middle";
+      ctx.fillText(clef.symbol, clefX, targetY);
+      ctx.textBaseline = "alphabetic";
+    } else {
+      const baselineY = targetY + (ascent - descent) / 2;
+      ctx.textBaseline = "alphabetic";
+      ctx.fillText(clef.symbol, clefX, baselineY);
+    }
 
     drawKeySignature(clef, keySignature);
 
