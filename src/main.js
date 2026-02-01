@@ -449,7 +449,7 @@ function endSession() {
   const confettiColors = ["#ff3b3b", "#1f7bff", "#ffffff"];
   (function burst() {
     confettiInstance({
-      particleCount: 45,
+      particleCount: 60,
       spread: 100,
       startVelocity: 90,
       ticks: 70,
