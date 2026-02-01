@@ -96,6 +96,7 @@ const RMS_THRESHOLD = 0.015;
 let celebrationUntil = 0;
 let nextNoteAt = 0;
 let matchLock = false;
+let nextNoteTimer = null;
 let keySignature = "natural";
 let correctCount = 0;
 let incorrectCount = 0;
@@ -426,6 +427,15 @@ function triggerCelebration() {
   lastWrongAt = 0;
   if (notesCompleted >= NOTES_PER_SESSION) {
     endSession();
+  } else {
+    if (nextNoteTimer) {
+      clearTimeout(nextNoteTimer);
+    }
+    nextNoteTimer = setTimeout(() => {
+      matchLock = false;
+      celebrationUntil = 0;
+      pickRandomNote();
+    }, 1000);
   }
 }
 
@@ -594,7 +604,6 @@ function tick() {
   if (matchLock && now > nextNoteAt) {
     matchLock = false;
     celebrationUntil = 0;
-    pickRandomNote();
   }
 
   drawStaff();
