@@ -20,14 +20,12 @@ const trebleBtn = document.getElementById("clef-treble");
 const bassBtn = document.getElementById("clef-bass");
 const sigSharpBtn = document.getElementById("sig-sharp");
 const sigSharp2Btn = document.getElementById("sig-sharp-2");
-const sigSharp3Btn = document.getElementById("sig-sharp-3");
 const sigFlatBtn = document.getElementById("sig-flat");
 const sigFlat2Btn = document.getElementById("sig-flat-2");
-const sigFlat3Btn = document.getElementById("sig-flat-3");
 const sigNaturalBtn = document.getElementById("sig-natural");
-const modeWhiteBtn = document.getElementById("mode-white");
-const modeBlackBtn = document.getElementById("mode-black");
-const modeAllBtn = document.getElementById("mode-all");
+const level1Btn = document.getElementById("level-1");
+const level2Btn = document.getElementById("level-2");
+const level3Btn = document.getElementById("level-3");
 const statusEl = document.getElementById("status");
 const celebrationEl = document.getElementById("celebration");
 const micFallbackBtn = document.getElementById("mic-fallback");
@@ -36,6 +34,12 @@ const confettiCanvas = document.getElementById("confetti-canvas");
 const confettiInstance = confettiCanvas ? confetti.create(confettiCanvas, { resize: true, useWorker: true }) : confetti;
 const milestoneSound = document.getElementById("milestone-sound");
 const warningEl = document.getElementById("warning");
+const endScreenEl = document.getElementById("end-screen");
+const redoBtn = document.getElementById("redo-session");
+const restartBtn = document.getElementById("restart-flow");
+const clefStep = document.querySelector(".clef-step");
+const keyStep = document.querySelector(".signature-toggle");
+const levelStep = document.querySelector(".level-toggle");
 
 const STAFF = {
   left: 110,
@@ -98,7 +102,10 @@ const WRONG_COOLDOWN_MS = 350;
 const WARNING_DURATION_MS = 2000;
 let warningTimeout = null;
 let warningShownForNote = false;
-let noteMode = "white";
+let currentLevel = 1;
+let notesCompleted = 0;
+const NOTES_PER_SESSION = 10;
+let sessionActive = false;
 
 const KEY_SIGNATURE_POSITIONS = {
   treble: {
