@@ -70,6 +70,7 @@ body {
   display: grid;
   grid-template-columns: repeat(2, minmax(110px, 1fr));
   gap: clamp(10px, 1.6vw, 16px);
+  grid-column: 1 / -1;
 }
 
 .signature-toggle {
