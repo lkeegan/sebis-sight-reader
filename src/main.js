@@ -87,6 +87,7 @@ let nextNoteAt = 0;
 let matchLock = false;
 let nextNoteTimer = null;
 let inputLocked = false;
+let flyAway = null;
 let keySignature = "natural";
 let correctCount = 0;
 let incorrectCount = 0;
@@ -120,11 +121,13 @@ function resizeCanvas() {
 function pickRandomNote() {
   const pick = notePool[Math.floor(Math.random() * notePool.length)];
   targetNote = { ...pick };
+  flyAway = null;
   drawStaff();
 }
 
 function drawStaff() {
   const isMatch = detectedNote && targetNote && notesMatchByMidi(detectedNote, targetNote, keySignature);
+  const flyOffset = isMatch ? getFlyAwayOffset() : null;
   renderer.draw({
     clef: currentClef,
     keySignature,
@@ -132,6 +135,7 @@ function drawStaff() {
     detectedNote,
     isMatch,
     jitter: isMatch ? getCelebrationJitter() : null,
+    targetOffset: flyOffset,
   });
 }
 
@@ -167,6 +171,7 @@ function triggerCelebration() {
   nextNoteAt = now + 1000;
   dom.celebration.textContent = "Well done!";
   dom.celebration.classList.add("show");
+  startFlyAway();
 
   correctCount += 1;
   const nextState = recordCorrectNote({ notesCompleted, matchLock, inputLocked }, NOTES_PER_SESSION);
@@ -232,6 +237,7 @@ function startSession() {
   incorrectCount = 0;
   matchLock = false;
   inputLocked = false;
+  flyAway = null;
   notePool = buildNotePool();
   updateProgress();
   pickRandomNote();
@@ -241,6 +247,35 @@ function updateProgress() {
   if (!dom.progressLabel || !dom.progressFill) return;
   dom.progressLabel.textContent = `${notesCompleted} / ${NOTES_PER_SESSION}`;
   dom.progressFill.style.width = `${(notesCompleted / NOTES_PER_SESSION) * 100}%`;
+}
+
+function startFlyAway() {
+  if (!targetNote) return;
+  const angle = Math.random() * Math.PI * 2;
+  const distance = 180 + Math.random() * 120;
+  const loops = 1 + Math.floor(Math.random() * 2);
+  const loopRadius = 18 + Math.random() * 12;
+  flyAway = {
+    start: performance.now(),
+    duration: Math.max(600, SESSION.nextNoteDelayMs * 0.9),
+    dx: Math.cos(angle) * distance,
+    dy: Math.sin(angle) * distance,
+    loops,
+    loopRadius,
+    phase: Math.random() * Math.PI * 2,
+  };
+}
+
+function getFlyAwayOffset() {
+  if (!flyAway) return null;
+  const now = performance.now();
+  const elapsed = now - flyAway.start;
+  const t = Math.min(Math.max(elapsed / flyAway.duration, 0), 1);
+  const loopAngle = t * flyAway.loops * Math.PI * 2 + flyAway.phase;
+  return {
+    x: flyAway.dx * t + Math.sin(loopAngle) * flyAway.loopRadius,
+    y: flyAway.dy * t + Math.cos(loopAngle) * flyAway.loopRadius,
+  };
 }
 
 function setFlow(step) {

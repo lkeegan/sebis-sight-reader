@@ -51,10 +51,18 @@ export function createStaffRenderer({
     }
   };
 
-  const drawNote = (note, color, clef, { isDetected = false, jitter = null } = {}) => {
-    const x = staff.left + staff.width / 2 + (isDetected ? 120 : 0) + (jitter ? jitter.x : 0);
+  const drawNote = (note, color, clef, { isDetected = false, jitter = null, offset = null } = {}) => {
+    const x =
+      staff.left +
+      staff.width / 2 +
+      (isDetected ? 120 : 0) +
+      (jitter ? jitter.x : 0) +
+      (offset ? offset.x : 0);
     const index = getStaffIndex(note, clef);
-    const y = staffYForIndex(index) + (jitter ? jitter.y : 0);
+    const y =
+      staffYForIndex(index) +
+      (jitter ? jitter.y : 0) +
+      (offset ? offset.y : 0);
     const stemDown = index >= 4;
 
     drawLedgerLines(index, x);
@@ -153,7 +161,7 @@ export function createStaffRenderer({
     };
   };
 
-  const draw = ({ clef, keySignature, targetNote, detectedNote, isMatch, jitter }) => {
+  const draw = ({ clef, keySignature, targetNote, detectedNote, isMatch, jitter, targetOffset }) => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.save();
     ctx.scale(1, 1);
@@ -188,6 +196,7 @@ export function createStaffRenderer({
     if (targetNote) {
       drawNote(targetNote, isMatch ? "#2fbf71" : "#1c1b1f", clef, {
         jitter: isMatch ? jitter : null,
+        offset: isMatch ? targetOffset : null,
       });
     }
 
