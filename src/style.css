@@ -228,10 +228,6 @@ button.ghost {
   grid-column: 1 / -1;
 }
 
-.hidden {
-  display: none;
-}
-
 .stage {
   display: flex;
   flex-direction: column;
@@ -243,6 +239,10 @@ button.ghost {
   position: relative;
   flex: 1;
   min-height: 0;
+}
+
+.hidden {
+  display: none !important;
 }
 
 canvas {
