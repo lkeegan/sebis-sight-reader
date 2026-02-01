@@ -79,6 +79,14 @@ body {
   grid-column: 1 / -1;
 }
 
+.note-mode-toggle {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(110px, 1fr));
+  gap: clamp(10px, 1.6vw, 16px);
+  grid-column: 1 / -1;
+  justify-items: start;
+}
+
 .clef-toggle,
 .signature-toggle {
   justify-items: start;

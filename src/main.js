@@ -28,6 +28,9 @@ const sigFlat3Btn = document.getElementById("sig-flat-3");
 const sigFlat4Btn = document.getElementById("sig-flat-4");
 const sigFlat5Btn = document.getElementById("sig-flat-5");
 const sigNaturalBtn = document.getElementById("sig-natural");
+const modeWhiteBtn = document.getElementById("mode-white");
+const modeBlackBtn = document.getElementById("mode-black");
+const modeAllBtn = document.getElementById("mode-all");
 const statusEl = document.getElementById("status");
 const celebrationEl = document.getElementById("celebration");
 const micFallbackBtn = document.getElementById("mic-fallback");
@@ -87,6 +90,7 @@ let nextNoteAt = 0;
 let matchLock = false;
 let keySignature = "natural";
 let correctCount = 0;
+let noteMode = "white";
 
 const KEY_SIGNATURE_POSITIONS = {
   treble: {
@@ -104,8 +108,11 @@ function buildNotePool() {
   const pool = [];
   for (let index = -6; index <= 12; index += 1) {
     const baseName = staffIndexToNoteName(index, currentClef.baseNote);
-    pool.push({ name: baseName, staffIndex: index });
+    if (noteMode !== "black") {
+      pool.push({ name: baseName, staffIndex: index });
+    }
 
+    if (noteMode === "white") continue;
     const match = /^([A-GH])(\d+)$/.exec(baseName);
     if (!match) continue;
     const [, letter, octave] = match;
@@ -205,7 +212,7 @@ function drawStaff() {
     );
   }
 
-  if (detectedNote && (!targetNote || detectedNote.name !== targetNote.name)) {
+  if (detectedNote && (!targetNote || !notesMatch(detectedNote, targetNote))) {
     drawNote(formatDetectedNoteForKey(detectedNote), "#f05a5a", true);
   }
 
@@ -520,7 +527,7 @@ function tick() {
 
   drawStaff();
 
-  if (!matchLock && detectedNote && targetNote && detectedNote.name === targetNote.name) {
+  if (!matchLock && detectedNote && targetNote && notesMatch(detectedNote, targetNote)) {
     triggerCelebration();
   }
 
@@ -541,6 +548,18 @@ function setClef(nextClef) {
       return;
     }
   }
+  pickRandomNote();
+}
+
+function setNoteMode(nextMode) {
+  noteMode = nextMode;
+  modeWhiteBtn.classList.toggle("active", noteMode === "white");
+  modeWhiteBtn.setAttribute("aria-pressed", noteMode === "white");
+  modeBlackBtn.classList.toggle("active", noteMode === "black");
+  modeBlackBtn.setAttribute("aria-pressed", noteMode === "black");
+  modeAllBtn.classList.toggle("active", noteMode === "all");
+  modeAllBtn.setAttribute("aria-pressed", noteMode === "all");
+  notePool = buildNotePool();
   pickRandomNote();
 }
 
@@ -579,6 +598,15 @@ sigFlat5Btn.addEventListener("click", () => {
 sigNaturalBtn.addEventListener("click", () => {
   setKeySignature("natural");
 });
+modeWhiteBtn.addEventListener("click", () => {
+  setNoteMode("white");
+});
+modeBlackBtn.addEventListener("click", () => {
+  setNoteMode("black");
+});
+modeAllBtn.addEventListener("click", () => {
+  setNoteMode("all");
+});
 micFallbackBtn.addEventListener("click", startListening);
 canvas.addEventListener("click", (event) => {
   const rect = canvas.getBoundingClientRect();
@@ -593,4 +621,5 @@ resizeCanvas();
 notePool = buildNotePool();
 setClef(CLEFS.treble);
 setKeySignature("natural");
+setNoteMode("white");
 startListening();
