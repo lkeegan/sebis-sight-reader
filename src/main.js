@@ -37,7 +37,6 @@ const warningEl = null;
 const endScreenEl = document.getElementById("end-screen");
 const redoBtn = document.getElementById("redo-session");
 const restartBtn = document.getElementById("restart-flow");
-const restartModalBtn = document.getElementById("restart-flow-modal");
 const sessionBarEl = document.getElementById("session-bar");
 const progressLabelEl = document.getElementById("progress-label");
 const progressFillEl = document.getElementById("progress-fill");
@@ -686,9 +685,10 @@ redoBtn?.addEventListener("click", () => {
 restartBtn?.addEventListener("click", () => {
   setFlow("clef");
 });
-restartModalBtn?.addEventListener("click", () => {
+redoBtn?.addEventListener("click", () => {
   endScreenEl?.classList.remove("show");
-  setFlow("clef");
+  setFlow("session");
+  startSession();
 });
 micFallbackBtn.addEventListener("click", startListening);
 window.addEventListener("resize", resizeCanvas);
