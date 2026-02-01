@@ -12,6 +12,7 @@
   "devDependencies": {
     "canvas-confetti": "^1.9.3",
     "pitchy": "^4.1.0",
+    "typescript": "^5.7.3",
     "vite": "^5.4.10",
     "vitest": "^2.1.9"
   }

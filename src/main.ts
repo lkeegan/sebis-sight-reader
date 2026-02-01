@@ -9,39 +9,40 @@ import {
   notesMatchByMidi,
   noteNameToMidi,
   noteNameToStaffIndex,
-} from "./note-utils.js";
-import { AUDIO_CONFIG, CLEF_STYLE, CLEFS, KEY_SIGNATURE_POSITIONS, STAFF_DEFAULT } from "./config.js";
-import { createStaffRenderer } from "./staff-renderer.js";
-import { recordCorrectNote } from "./session-state.js";
+} from "./note-utils";
+import { AUDIO_CONFIG, CLEF_STYLE, CLEFS, KEY_SIGNATURE_POSITIONS, STAFF_DEFAULT } from "./config";
+import { createStaffRenderer } from "./staff-renderer";
+import { recordCorrectNote } from "./session-state";
+import type { KeySignatureKey, Note } from "./note-utils";
 
 const dom = {
-  canvas: document.getElementById("staff"),
-  stage: document.querySelector(".stage"),
-  controls: document.querySelector(".controls"),
-  header: document.getElementById("flow-header"),
-  clefTreble: document.getElementById("clef-treble"),
-  clefBass: document.getElementById("clef-bass"),
-  sigSharp: document.getElementById("sig-sharp"),
-  sigSharp2: document.getElementById("sig-sharp-2"),
-  sigFlat: document.getElementById("sig-flat"),
-  sigFlat2: document.getElementById("sig-flat-2"),
-  sigNatural: document.getElementById("sig-natural"),
-  level1: document.getElementById("level-1"),
-  level2: document.getElementById("level-2"),
-  level3: document.getElementById("level-3"),
-  status: document.getElementById("status"),
-  celebration: document.getElementById("celebration"),
-  micFallback: document.getElementById("mic-fallback"),
-  confettiCanvas: document.getElementById("confetti-canvas"),
-  endScreen: document.getElementById("end-screen"),
-  redo: document.getElementById("redo-session"),
-  restart: document.getElementById("restart-flow"),
-  sessionBar: document.getElementById("session-bar"),
-  progressLabel: document.getElementById("progress-label"),
-  progressFill: document.getElementById("progress-fill"),
-  stepClef: document.querySelector(".clef-step"),
-  stepKey: document.querySelector(".key-step"),
-  stepLevel: document.querySelector(".level-step"),
+  canvas: document.getElementById("staff") as HTMLCanvasElement,
+  stage: document.querySelector(".stage") as HTMLElement | null,
+  controls: document.querySelector(".controls") as HTMLElement | null,
+  header: document.getElementById("flow-header") as HTMLElement | null,
+  clefTreble: document.getElementById("clef-treble") as HTMLButtonElement | null,
+  clefBass: document.getElementById("clef-bass") as HTMLButtonElement | null,
+  sigSharp: document.getElementById("sig-sharp") as HTMLButtonElement | null,
+  sigSharp2: document.getElementById("sig-sharp-2") as HTMLButtonElement | null,
+  sigFlat: document.getElementById("sig-flat") as HTMLButtonElement | null,
+  sigFlat2: document.getElementById("sig-flat-2") as HTMLButtonElement | null,
+  sigNatural: document.getElementById("sig-natural") as HTMLButtonElement | null,
+  level1: document.getElementById("level-1") as HTMLButtonElement | null,
+  level2: document.getElementById("level-2") as HTMLButtonElement | null,
+  level3: document.getElementById("level-3") as HTMLButtonElement | null,
+  status: document.getElementById("status") as HTMLElement | null,
+  celebration: document.getElementById("celebration") as HTMLElement | null,
+  micFallback: document.getElementById("mic-fallback") as HTMLButtonElement | null,
+  confettiCanvas: document.getElementById("confetti-canvas") as HTMLCanvasElement | null,
+  endScreen: document.getElementById("end-screen") as HTMLElement | null,
+  redo: document.getElementById("redo-session") as HTMLButtonElement | null,
+  restart: document.getElementById("restart-flow") as HTMLButtonElement | null,
+  sessionBar: document.getElementById("session-bar") as HTMLElement | null,
+  progressLabel: document.getElementById("progress-label") as HTMLElement | null,
+  progressFill: document.getElementById("progress-fill") as HTMLElement | null,
+  stepClef: document.querySelector(".clef-step") as HTMLElement | null,
+  stepKey: document.querySelector(".key-step") as HTMLElement | null,
+  stepLevel: document.querySelector(".level-step") as HTMLElement | null,
 };
 
 const confettiInstance = dom.confettiCanvas
@@ -56,39 +57,47 @@ const SESSION = {
   confettiMs: 3000,
 };
 
-const setPressed = (button, isPressed) => {
+const setPressed = (button: HTMLButtonElement | null, isPressed: boolean) => {
   if (!button) return;
   button.classList.toggle("active", isPressed);
   button.setAttribute("aria-pressed", String(isPressed));
 };
 
-const setHidden = (element, hidden) => {
+const setHidden = (element: HTMLElement | null, hidden: boolean) => {
   if (!element) return;
   element.classList.toggle("hidden", hidden);
 };
 
 let currentClef = CLEFS.treble;
-let notePool = [];
+let notePool: Note[] = [];
 
-let audioContext = null;
-let analyser = null;
-let timeData = null;
-let detector = null;
+let audioContext: AudioContext | null = null;
+let analyser: AnalyserNode | null = null;
+let timeData: Float32Array | null = null;
+let detector: ReturnType<typeof PitchDetector.forFloat32Array> | null = null;
 const recentPitches = [];
 const PITCH_WINDOW = 5;
-let targetNote = null;
-let detectedNote = null;
-let detectedFrequency = null;
+let targetNote: Note | null = null;
+let detectedNote: Note | null = null;
+let detectedFrequency: number | null = null;
 let listening = false;
-let pendingNote = null;
+let pendingNote: Note | null = null;
 let pendingSince = 0;
 let celebrationUntil = 0;
 let nextNoteAt = 0;
 let matchLock = false;
 let nextNoteTimer = null;
 let inputLocked = false;
-let flyAway = null;
-let keySignature = "natural";
+let flyAway: {
+  start: number;
+  duration: number;
+  dx: number;
+  dy: number;
+  loops: number;
+  loopRadius: number;
+  phase: number;
+} | null = null;
+let keySignature: KeySignatureKey = "natural";
 let correctCount = 0;
 let incorrectCount = 0;
 let lastWrongMidi = null;
@@ -139,7 +148,7 @@ function drawStaff() {
   });
 }
 
-function setKeySignature(nextSignature) {
+function setKeySignature(nextSignature: KeySignatureKey) {
   const previousSignature = keySignature;
   keySignature = nextSignature;
   setPressed(dom.sigNatural, keySignature === "natural");
@@ -278,7 +287,7 @@ function getFlyAwayOffset() {
   };
 }
 
-function setFlow(step) {
+function setFlow(step: "clef" | "key" | "level" | "session") {
   dom.stepClef?.classList.toggle("active", step === "clef");
   dom.stepKey?.classList.toggle("active", step === "key");
   dom.stepLevel?.classList.toggle("active", step === "level");
@@ -324,6 +333,7 @@ async function startListening() {
 function detectPitch() {
   if (!analyser) return;
 
+  if (!analyser || !timeData || !audioContext || !detector) return;
   analyser.getFloatTimeDomainData(timeData);
   let sumSquares = 0;
   for (let i = 0; i < timeData.length; i += 1) {
@@ -333,10 +343,9 @@ function detectPitch() {
   const rms = Math.sqrt(sumSquares / timeData.length);
 
   const [pitch, detectedClarity] = detector.findPitch(timeData, audioContext.sampleRate);
-  clarity = detectedClarity;
   if (
     !pitch ||
-    clarity < AUDIO.clarityThreshold ||
+    detectedClarity < AUDIO.clarityThreshold ||
     pitch < AUDIO.minPitchHz ||
     pitch > AUDIO.maxPitchHz ||
     rms < AUDIO.rmsThreshold

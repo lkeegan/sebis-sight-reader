@@ -1,9 +1,39 @@
-export const STAFF_BASE_NOTE = { letterIndex: 2, octave: 4 }; // Treble: E4 on the bottom line.
-export const LETTERS = ["C", "D", "E", "F", "G", "A", "H"];
-export const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "H"];
-export const SHARP_ORDER = ["F", "C", "G", "D", "A", "E", "H"];
-export const FLAT_ORDER = ["H", "E", "A", "D", "G", "C", "F"];
-export const KEY_SIGNATURES = {
+export type ClefName = "treble" | "bass";
+export type KeySignatureKey =
+  | "natural"
+  | "sharp"
+  | "sharp2"
+  | "sharp3"
+  | "sharp4"
+  | "sharp5"
+  | "flat"
+  | "flat2"
+  | "flat3"
+  | "flat4"
+  | "flat5";
+export type Accidental = "#" | "b" | "natural" | null;
+
+export interface BaseNote {
+  letterIndex: number;
+  octave: number;
+}
+
+export interface Note {
+  name: string;
+  staffIndex?: number;
+  accidental?: Accidental | "";
+  baseName?: string;
+  midi?: number | null;
+  letter?: string;
+  octave?: number;
+}
+
+export const STAFF_BASE_NOTE: BaseNote = { letterIndex: 2, octave: 4 }; // Treble: E4 on the bottom line.
+export const LETTERS = ["C", "D", "E", "F", "G", "A", "H"] as const;
+export const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "H"] as const;
+export const SHARP_ORDER = ["F", "C", "G", "D", "A", "E", "H"] as const;
+export const FLAT_ORDER = ["H", "E", "A", "D", "G", "C", "F"] as const;
+export const KEY_SIGNATURES: Record<KeySignatureKey, { type: "natural" | "sharp" | "flat"; count: number }> = {
   natural: { type: "natural", count: 0 },
   sharp: { type: "sharp", count: 1 },
   sharp2: { type: "sharp", count: 2 },
@@ -19,7 +49,7 @@ export const KEY_SIGNATURES = {
 
 export const DEFAULT_SESSION_NOTES = 10;
 
-export function parseNoteName(name) {
+export function parseNoteName(name: string) {
   const match = /^([A-GHB])([#b]?)(-?\d+)$/.exec(name);
   if (!match) {
     return null;
@@ -28,7 +58,7 @@ export function parseNoteName(name) {
   return { letter, accidental, octave: Number(octave) };
 }
 
-export function formatNoteLabel(note) {
+export function formatNoteLabel(note: Note) {
   const parsed = parseNoteName(note.name);
   if (!parsed) return note.name;
   const { letter, accidental, octave } = parsed;
@@ -41,7 +71,7 @@ export function formatNoteLabel(note) {
   return `${letter}${accidental}${octave}`;
 }
 
-export function staffIndexToNoteName(index, baseNote = STAFF_BASE_NOTE) {
+export function staffIndexToNoteName(index: number, baseNote: BaseNote = STAFF_BASE_NOTE) {
   let letterIndex = baseNote.letterIndex;
   let octave = baseNote.octave;
   if (index > 0) {
@@ -64,7 +94,7 @@ export function staffIndexToNoteName(index, baseNote = STAFF_BASE_NOTE) {
   return `${LETTERS[letterIndex]}${octave}`;
 }
 
-export function noteNameToStaffIndex(name, baseNote = STAFF_BASE_NOTE) {
+export function noteNameToStaffIndex(name: string, baseNote: BaseNote = STAFF_BASE_NOTE) {
   const parsed = parseNoteName(name);
   if (!parsed) return null;
   const normalizedLetter = parsed.letter === "B" ? "H" : parsed.letter;
@@ -75,7 +105,7 @@ export function noteNameToStaffIndex(name, baseNote = STAFF_BASE_NOTE) {
   return targetDiatonic - baseDiatonic;
 }
 
-export function getBaseRangeForClef(clefName, baseNote) {
+export function getBaseRangeForClef(clefName: ClefName, baseNote: BaseNote) {
   if (clefName === "treble") {
     return {
       minIndex: noteNameToStaffIndex("C4", baseNote),
@@ -88,7 +118,7 @@ export function getBaseRangeForClef(clefName, baseNote) {
   };
 }
 
-export function getRangeForLevel(clefName, baseNote, level) {
+export function getRangeForLevel(clefName: ClefName, baseNote: BaseNote, level: number) {
   const base = getBaseRangeForClef(clefName, baseNote);
   const octaveSteps = 7;
   if (level >= 3) {
@@ -100,7 +130,7 @@ export function getRangeForLevel(clefName, baseNote, level) {
   return base;
 }
 
-export function buildNotePoolForLevel(clefName, baseNote, level) {
+export function buildNotePoolForLevel(clefName: ClefName, baseNote: BaseNote, level: number): Note[] {
   const pool = [];
   const { minIndex, maxIndex } = getRangeForLevel(clefName, baseNote, level);
   for (let index = minIndex; index <= maxIndex; index += 1) {
@@ -117,17 +147,17 @@ export function buildNotePoolForLevel(clefName, baseNote, level) {
   return pool;
 }
 
-export function shouldEndSession(completed, total = DEFAULT_SESSION_NOTES) {
+export function shouldEndSession(completed: number, total: number = DEFAULT_SESSION_NOTES) {
   return completed >= total;
 }
 
-export function applyKeySignatureToLetter(letter, signatureKey) {
+export function applyKeySignatureToLetter(letter: string, signatureKey: KeySignatureKey) {
   const signatureAcc = signatureAccidentalForLetter(letter, signatureKey);
   if (!signatureAcc) return letter;
   return `${letter}${signatureAcc}`;
 }
 
-export function frequencyToNote(frequency) {
+export function frequencyToNote(frequency: number): Note {
   const midi = Math.round(69 + 12 * Math.log2(frequency / 440));
   const name = NOTE_NAMES[((midi % 12) + 12) % 12];
   const octave = Math.floor(midi / 12) - 1;
@@ -143,7 +173,7 @@ export function frequencyToNote(frequency) {
   };
 }
 
-export function noteNameToMidi(name) {
+export function noteNameToMidi(name: string) {
   const match = /^([A-GHB])([#b]?)(-?\d+)$/.exec(name);
   if (!match) return null;
   const [, letter, accidental, octaveRaw] = match;
@@ -165,7 +195,7 @@ export function noteNameToMidi(name) {
   return (octave + 1) * 12 + semitone;
 }
 
-export function signatureAccidentalForLetter(letter, signatureKey) {
+export function signatureAccidentalForLetter(letter: string, signatureKey: KeySignatureKey) {
   const signature = KEY_SIGNATURES[signatureKey];
   if (!signature || signature.count === 0) return null;
   const order = signature.type === "sharp" ? SHARP_ORDER : FLAT_ORDER;
@@ -174,7 +204,7 @@ export function signatureAccidentalForLetter(letter, signatureKey) {
   return signature.type === "sharp" ? "#" : "b";
 }
 
-export function effectiveNoteName(note, signatureKey) {
+export function effectiveNoteName(note: Note, signatureKey: KeySignatureKey) {
   if (!note?.name) return null;
   const match = /^([A-GHB])([#b]?)(-?\d+)$/.exec(note.name);
   if (!match) return note.name;
@@ -194,7 +224,7 @@ export function effectiveNoteName(note, signatureKey) {
   return `${letter}${applied}${octave}`;
 }
 
-export function notesMatchByMidi(detected, target, signatureKey) {
+export function notesMatchByMidi(detected: Note | null, target: Note | null, signatureKey: KeySignatureKey) {
   const targetName = effectiveNoteName(target, signatureKey);
   const targetMidi = targetName ? noteNameToMidi(targetName) : null;
   const detectedMidi = Number.isFinite(detected?.midi)
@@ -206,7 +236,12 @@ export function notesMatchByMidi(detected, target, signatureKey) {
   return targetMidi === detectedMidi;
 }
 
-export function adjustNoteForKeyChange(note, previousSignature, nextSignature, baseNote = STAFF_BASE_NOTE) {
+export function adjustNoteForKeyChange(
+  note: Note,
+  previousSignature: KeySignatureKey,
+  nextSignature: KeySignatureKey,
+  baseNote: BaseNote = STAFF_BASE_NOTE,
+) {
   if (!note) return note;
   const staffIndex =
     Number.isFinite(note.staffIndex) ? note.staffIndex : noteNameToStaffIndex(note.name, baseNote);
@@ -249,7 +284,12 @@ function bitReverse(value, bits) {
   return reversed;
 }
 
-export function dominantFrequencyFromSamples(samples, sampleRate, minHz = 80, maxHz = 1000) {
+export function dominantFrequencyFromSamples(
+  samples: Float64Array,
+  sampleRate: number,
+  minHz: number = 80,
+  maxHz: number = 1000,
+) {
   const n = samples.length;
   const bits = Math.log2(n);
   if (!Number.isInteger(bits)) {
@@ -314,13 +354,18 @@ export function dominantFrequencyFromSamples(samples, sampleRate, minHz = 80, ma
   return (maxIndex / n) * sampleRate;
 }
 
-export function detectNoteFromSamples(samples, sampleRate, minHz = 80, maxHz = 1000) {
+export function detectNoteFromSamples(
+  samples: Float64Array,
+  sampleRate: number,
+  minHz: number = 80,
+  maxHz: number = 1000,
+) {
   const frequency = dominantFrequencyFromSamples(samples, sampleRate, minHz, maxHz);
   if (!frequency) return null;
   return frequencyToNote(frequency);
 }
 
-export function generateSineSamples(frequency, sampleRate, length) {
+export function generateSineSamples(frequency: number, sampleRate: number, length: number) {
   const samples = new Float64Array(length);
   const step = (Math.PI * 2 * frequency) / sampleRate;
   for (let i = 0; i < length; i += 1) {
@@ -329,7 +374,12 @@ export function generateSineSamples(frequency, sampleRate, length) {
   return samples;
 }
 
-export function generateHarmonicSamples(frequency, sampleRate, length, harmonics = [1, 0.5, 0.25]) {
+export function generateHarmonicSamples(
+  frequency: number,
+  sampleRate: number,
+  length: number,
+  harmonics: number[] = [1, 0.5, 0.25],
+) {
   const samples = new Float64Array(length);
   for (let i = 0; i < length; i += 1) {
     let value = 0;

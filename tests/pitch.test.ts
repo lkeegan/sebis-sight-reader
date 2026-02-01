@@ -5,7 +5,7 @@ import {
   generateSineSamples,
   noteNameToStaffIndex,
   staffIndexToNoteName,
-} from "../src/note-utils.js";
+} from "../src/note-utils";
 
 const sampleRate = 44100;
 const length = 4096;

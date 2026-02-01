@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { recordCorrectNote } from "../src/session-state.js";
+import { recordCorrectNote } from "../src/session-state";
 
 describe("session state behavior", () => {
   it("locks input after a correct note", () => {

@@ -1,4 +1,22 @@
-import { KEY_SIGNATURES, noteNameToStaffIndex, signatureAccidentalForLetter } from "./note-utils.js";
+import {
+  KEY_SIGNATURES,
+  noteNameToStaffIndex,
+  signatureAccidentalForLetter,
+  type ClefName,
+  type KeySignatureKey,
+  type Note,
+} from "./note-utils";
+
+interface StaffRendererConfig {
+  canvas: HTMLCanvasElement;
+  clefs: { treble: { baseNote: { letterIndex: number; octave: number }; symbol: string; symbolIndex: number; symbolOffset: number } };
+  keySignaturePositions: {
+    treble: { sharps: number[]; flats: number[] };
+    bass: { sharps: number[]; flats: number[] };
+  };
+  staffDefaults: { left: number; top: number; width: number; lineGap: number };
+  clefStyle: { lineExtension: number };
+}
 
 export function createStaffRenderer({
   canvas,
@@ -6,7 +24,7 @@ export function createStaffRenderer({
   keySignaturePositions,
   staffDefaults,
   clefStyle,
-}) {
+}: StaffRendererConfig) {
   const ctx = canvas.getContext("2d");
   const staff = { ...staffDefaults };
 
@@ -15,7 +33,7 @@ export function createStaffRenderer({
     return baseY - index * (staff.lineGap / 2);
   };
 
-  const getStaffIndex = (note, clef) => {
+  const getStaffIndex = (note: Note, clef: typeof clefs.treble) => {
     if (Number.isFinite(note.staffIndex)) {
       return note.staffIndex;
     }
@@ -24,7 +42,7 @@ export function createStaffRenderer({
     return Number.isFinite(computed) ? computed : 0;
   };
 
-  const drawLedgerLines = (index, x) => {
+  const drawLedgerLines = (index: number, x: number) => {
     const lowestLine = 0;
     const highestLine = 8;
     ctx.strokeStyle = "#1c1b1f";
@@ -51,7 +69,20 @@ export function createStaffRenderer({
     }
   };
 
-  const drawNote = (note, color, clef, { isDetected = false, jitter = null, offset = null } = {}) => {
+  const drawNote = (
+    note: Note,
+    color: string,
+    clef: typeof clefs.treble,
+    {
+      isDetected = false,
+      jitter = null,
+      offset = null,
+    }: {
+      isDetected?: boolean;
+      jitter?: { x: number; y: number } | null;
+      offset?: { x: number; y: number } | null;
+    } = {},
+  ) => {
     const x =
       staff.left +
       staff.width / 2 +
@@ -102,7 +133,7 @@ export function createStaffRenderer({
     }
   };
 
-  const drawKeySignature = (clef, keySignature) => {
+  const drawKeySignature = (clef: typeof clefs.treble, keySignature: KeySignatureKey) => {
     const signature = KEY_SIGNATURES[keySignature];
     if (!signature || signature.count === 0) return;
     const positions =
@@ -120,7 +151,11 @@ export function createStaffRenderer({
     }
   };
 
-  const formatDetectedNoteForKey = (note, clef, keySignature) => {
+  const formatDetectedNoteForKey = (
+    note: Note,
+    clef: typeof clefs.treble,
+    keySignature: KeySignatureKey,
+  ) => {
     const signature = KEY_SIGNATURES[keySignature];
     const match = /^([A-GHB])([#b]?)(-?\d+)$/.exec(note.name);
     if (!signature || !match) return note;
@@ -161,7 +196,23 @@ export function createStaffRenderer({
     };
   };
 
-  const draw = ({ clef, keySignature, targetNote, detectedNote, isMatch, jitter, targetOffset }) => {
+  const draw = ({
+    clef,
+    keySignature,
+    targetNote,
+    detectedNote,
+    isMatch,
+    jitter,
+    targetOffset,
+  }: {
+    clef: typeof clefs.treble;
+    keySignature: KeySignatureKey;
+    targetNote: Note | null;
+    detectedNote: Note | null;
+    isMatch: boolean;
+    jitter?: { x: number; y: number } | null;
+    targetOffset?: { x: number; y: number } | null;
+  }) => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.save();
     ctx.scale(1, 1);
@@ -209,7 +260,7 @@ export function createStaffRenderer({
     ctx.restore();
   };
 
-  const resize = (stageHeight) => {
+  const resize = (stageHeight: number) => {
     const ratio = window.devicePixelRatio || 1;
     const { width } = canvas.getBoundingClientRect();
     const desiredHeight = Math.max(420, stageHeight - 24);

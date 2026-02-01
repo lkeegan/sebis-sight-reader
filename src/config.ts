@@ -1,15 +1,41 @@
-export const STAFF_DEFAULT = {
+export interface StaffLayout {
+  left: number;
+  top: number;
+  width: number;
+  lineGap: number;
+}
+
+export interface ClefDefinition {
+  name: string;
+  symbol: string;
+  baseNote: { letterIndex: number; octave: number };
+  symbolIndex: number;
+  symbolOffset: number;
+}
+
+export interface AudioConfig {
+  fftSize: number;
+  smoothing: number;
+  minHoldMs: number;
+  minPitchHz: number;
+  maxPitchHz: number;
+  octaveTolerance: number;
+  clarityThreshold: number;
+  rmsThreshold: number;
+}
+
+export const STAFF_DEFAULT: StaffLayout = {
   left: 110,
   top: 130,
   width: 680,
   lineGap: 18,
 };
 
-export const CLEF_STYLE = {
+export const CLEF_STYLE: { lineExtension: number } = {
   lineExtension: 40,
 };
 
-export const CLEFS = {
+export const CLEFS: { treble: ClefDefinition; bass: ClefDefinition } = {
   treble: {
     name: "Treble",
     symbol: "𝄞",
@@ -26,7 +52,10 @@ export const CLEFS = {
   },
 };
 
-export const KEY_SIGNATURE_POSITIONS = {
+export const KEY_SIGNATURE_POSITIONS: {
+  treble: { sharps: number[]; flats: number[] };
+  bass: { sharps: number[]; flats: number[] };
+} = {
   treble: {
     sharps: [8, 5, 9, 6, 3, 7, 4], // F, C, G, D, A, E, B
     flats: [4, 7, 3, 6, 2, 5, 1], // B, E, A, D, G, C, F
@@ -37,7 +66,7 @@ export const KEY_SIGNATURE_POSITIONS = {
   },
 };
 
-export const AUDIO_CONFIG = {
+export const AUDIO_CONFIG: AudioConfig = {
   fftSize: 4096,
   smoothing: 0.8,
   minHoldMs: 25,

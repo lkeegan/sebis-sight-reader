@@ -8,7 +8,7 @@ import {
   applyKeySignatureToLetter,
   STAFF_BASE_NOTE,
   notesMatchByMidi,
-} from "../src/note-utils.js";
+} from "../src/note-utils";
 
 describe("key signature adjustments", () => {
   it("adds a natural sign when the new key signature would sharpen the note", () => {

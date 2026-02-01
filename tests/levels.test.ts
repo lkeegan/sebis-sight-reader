@@ -5,7 +5,7 @@ import {
   noteNameToStaffIndex,
   staffIndexToNoteName,
   STAFF_BASE_NOTE,
-} from "../src/note-utils.js";
+} from "../src/note-utils";
 
 const trebleBase = { letterIndex: 2, octave: 4 };
 const bassBase = { letterIndex: 4, octave: 2 };
