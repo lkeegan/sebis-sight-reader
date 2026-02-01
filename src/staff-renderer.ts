@@ -80,10 +80,14 @@ export function createStaffRenderer({
       isDetected = false,
       jitter = null,
       offset = null,
+      scale = 1,
+      alpha = 1,
     }: {
       isDetected?: boolean;
       jitter?: { x: number; y: number } | null;
       offset?: { x: number; y: number } | null;
+      scale?: number;
+      alpha?: number;
     } = {},
   ) => {
     const x =
@@ -102,7 +106,11 @@ export function createStaffRenderer({
     drawLedgerLines(index, x);
 
     ctx.save();
+    ctx.globalAlpha = alpha;
     ctx.translate(x, y);
+    ctx.scale(scale, scale);
+
+    ctx.save();
     ctx.rotate(-0.35);
     ctx.fillStyle = color;
     ctx.strokeStyle = color;
@@ -116,11 +124,11 @@ export function createStaffRenderer({
     ctx.lineWidth = 2;
     ctx.beginPath();
     if (stemDown) {
-      ctx.moveTo(x - 10, y + 2);
-      ctx.lineTo(x - 10, y + 42);
+      ctx.moveTo(-10, 2);
+      ctx.lineTo(-10, 42);
     } else {
-      ctx.moveTo(x + 10, y - 2);
-      ctx.lineTo(x + 10, y - 42);
+      ctx.moveTo(10, -2);
+      ctx.lineTo(10, -42);
     }
     ctx.stroke();
 
@@ -132,8 +140,9 @@ export function createStaffRenderer({
       const xOffset = note.accidental === "b" ? 34 : 34;
       const yOffset = note.accidental === "b" ? 6 : 14;
       const adjustedY = note.accidental === "natural" ? yOffset - staff.lineGap * 0.5 : yOffset;
-      ctx.fillText(symbol, x - xOffset, y + adjustedY);
+      ctx.fillText(symbol, -xOffset, adjustedY);
     }
+    ctx.restore();
   };
 
   const drawKeySignature = (clef: typeof clefs.treble, keySignature: KeySignatureKey) => {
@@ -217,7 +226,7 @@ export function createStaffRenderer({
     detectedNote: Note | null;
     isMatch: boolean;
     jitter?: { x: number; y: number } | null;
-    targetOffset?: { x: number; y: number } | null;
+    targetOffset?: { offset: { x: number; y: number } | null; scale: number; alpha: number } | null;
   }) => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.save();
@@ -253,7 +262,9 @@ export function createStaffRenderer({
     if (targetNote) {
       drawNote(targetNote, isMatch ? "#2fbf71" : "#1c1b1f", clef, {
         jitter: isMatch ? jitter : null,
-        offset: isMatch ? targetOffset : null,
+        offset: isMatch ? targetOffset?.offset ?? null : null,
+        scale: isMatch ? targetOffset?.scale ?? 1 : 1,
+        alpha: isMatch ? targetOffset?.alpha ?? 1 : 1,
       });
     }
 

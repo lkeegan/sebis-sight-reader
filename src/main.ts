@@ -282,12 +282,16 @@ function getFlyAwayOffset() {
   if (!flyAway) return null;
   const now = performance.now();
   const elapsed = now - flyAway.start;
-  const t = Math.min(Math.max(elapsed / flyAway.duration, 0), 1);
-  const loopAngle = t * flyAway.loops * Math.PI * 2 + flyAway.phase;
-  return {
+  const tRaw = Math.min(Math.max(elapsed / flyAway.duration, 0), 1);
+  const t = tRaw * tRaw;
+  const loopAngle = tRaw * flyAway.loops * Math.PI * 2 + flyAway.phase;
+  const offset = {
     x: flyAway.dx * t + Math.sin(loopAngle) * flyAway.loopRadius,
     y: flyAway.dy * t + Math.cos(loopAngle) * flyAway.loopRadius,
   };
+  const scale = 1 + t * 0.6;
+  const alpha = 1 - tRaw * tRaw;
+  return { offset, scale, alpha };
 }
 
 function setFlow(step: "clef" | "key" | "level" | "session") {
