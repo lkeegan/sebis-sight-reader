@@ -446,9 +446,9 @@ function triggerMilestone() {
     confettiInstance({
       particleCount: 14,
       spread: 90,
-      startVelocity: 40,
-      ticks: 160,
-      gravity: 0.8,
+      startVelocity: 80,
+      ticks: 60,
+      gravity: 2.4,
       scalar: 1,
       colors: confettiColors,
       origin: { x: Math.random(), y: 0 },
