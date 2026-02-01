@@ -659,13 +659,6 @@ modeAllBtn.addEventListener("click", () => {
   setNoteMode("all");
 });
 micFallbackBtn.addEventListener("click", startListening);
-canvas.addEventListener("click", (event) => {
-  const rect = canvas.getBoundingClientRect();
-  const y = event.clientY - rect.top;
-  const baseY = STAFF.top + STAFF.lineGap * 4;
-  const index = Math.round((baseY - y) / (STAFF.lineGap / 2));
-  setTargetByIndex(index);
-});
 window.addEventListener("resize", resizeCanvas);
 
 resizeCanvas();
