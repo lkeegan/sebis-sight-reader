@@ -1,27 +1,35 @@
 import "./style.css";
 import { PitchDetector } from "pitchy";
-import { formatNoteLabel, frequencyToNote, noteNameToStaffIndex, staffIndexToNoteName } from "./note-utils.js";
+import { frequencyToNote, noteNameToStaffIndex, staffIndexToNoteName } from "./note-utils.js";
 
 const canvas = document.getElementById("staff");
 const ctx = canvas.getContext("2d");
+const stageEl = document.querySelector(".stage");
 
 const trebleBtn = document.getElementById("clef-treble");
 const bassBtn = document.getElementById("clef-bass");
+const sigSharpBtn = document.getElementById("sig-sharp");
+const sigSharp2Btn = document.getElementById("sig-sharp-2");
+const sigSharp3Btn = document.getElementById("sig-sharp-3");
+const sigSharp4Btn = document.getElementById("sig-sharp-4");
+const sigSharp5Btn = document.getElementById("sig-sharp-5");
+const sigFlatBtn = document.getElementById("sig-flat");
+const sigFlat2Btn = document.getElementById("sig-flat-2");
+const sigFlat3Btn = document.getElementById("sig-flat-3");
+const sigFlat4Btn = document.getElementById("sig-flat-4");
+const sigFlat5Btn = document.getElementById("sig-flat-5");
+const sigNaturalBtn = document.getElementById("sig-natural");
 const statusEl = document.getElementById("status");
-const targetEl = document.getElementById("target-note");
-const detectedEl = document.getElementById("detected-note");
-const frequencyEl = document.getElementById("frequency");
 const celebrationEl = document.getElementById("celebration");
 const micFallbackBtn = document.getElementById("mic-fallback");
 
 const STAFF = {
   left: 110,
-  top: 90,
+  top: 130,
   width: 680,
   lineGap: 18,
 };
 const CLEF = {
-  x: STAFF.left - 30,
   lineExtension: 40,
 };
 
@@ -58,7 +66,7 @@ let detectedFrequency = null;
 let listening = false;
 let pendingNote = null;
 let pendingSince = 0;
-const MIN_HOLD_MS = 50;
+const MIN_HOLD_MS = 25;
 const MIN_PITCH_HZ = 27.5;
 const MAX_PITCH_HZ = 4186;
 const OCTAVE_TOLERANCE = 0.03;
@@ -66,6 +74,32 @@ const CLARITY_THRESHOLD = 0.9;
 let celebrationUntil = 0;
 let nextNoteAt = 0;
 let matchLock = false;
+let keySignature = "natural";
+
+const KEY_SIGNATURES = {
+  natural: { type: "natural", count: 0 },
+  sharp: { type: "sharp", count: 1 },
+  sharp2: { type: "sharp", count: 2 },
+  sharp3: { type: "sharp", count: 3 },
+  sharp4: { type: "sharp", count: 4 },
+  sharp5: { type: "sharp", count: 5 },
+  flat: { type: "flat", count: 1 },
+  flat2: { type: "flat", count: 2 },
+  flat3: { type: "flat", count: 3 },
+  flat4: { type: "flat", count: 4 },
+  flat5: { type: "flat", count: 5 },
+};
+
+const KEY_SIGNATURE_POSITIONS = {
+  treble: {
+    sharps: [8, 5, 9, 6, 3, 7, 4], // F, C, G, D, A, E, B
+    flats: [4, 7, 3, 6, 2, 5, 1], // B, E, A, D, G, C, F
+  },
+  bass: {
+    sharps: [6, 3, 7, 4, 1, 5, 2], // F, C, G, D, A, E, B
+    flats: [2, 5, 1, 4, 0, 3, -1], // B, E, A, D, G, C, F
+  },
+};
 
 function buildNotePool() {
   const pool = [];
@@ -79,16 +113,23 @@ function buildNotePool() {
 function resizeCanvas() {
   const ratio = window.devicePixelRatio || 1;
   const { width } = canvas.getBoundingClientRect();
+  const stageHeight = stageEl ? stageEl.getBoundingClientRect().height : 420;
+  const desiredHeight = Math.max(420, stageHeight - 24);
   canvas.width = Math.floor(width * ratio);
-  canvas.height = Math.floor(320 * ratio);
+  canvas.height = Math.floor(desiredHeight * ratio);
   ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+  const viewWidth = width;
+  const viewHeight = desiredHeight;
+  STAFF.width = Math.min(900, viewWidth - 180);
+  STAFF.left = Math.max(40, (viewWidth - STAFF.width) / 2);
+  const staffHeight = STAFF.lineGap * 4;
+  STAFF.top = Math.max(60, (viewHeight - staffHeight) / 2);
   drawStaff();
 }
 
 function pickRandomNote() {
   const pick = notePool[Math.floor(Math.random() * notePool.length)];
   targetNote = { ...pick };
-  targetEl.textContent = formatNoteLabel(targetNote);
   drawStaff();
 }
 
@@ -101,7 +142,6 @@ function setTargetByIndex(index) {
   const name = staffIndexToNoteName(index, currentClef.baseNote);
   const note = notePool.find((entry) => entry.name === name) || { name, staffIndex: index };
   targetNote = { ...note };
-  targetEl.textContent = formatNoteLabel(targetNote);
   drawStaff();
 }
 
@@ -133,15 +173,18 @@ function drawStaff() {
     ctx.stroke();
   }
 
+  const clefX = STAFF.left - CLEF.lineExtension + 12;
   ctx.font = "96px serif";
   ctx.fillStyle = "#1c1b1f";
   ctx.textBaseline = "middle";
   ctx.fillText(
     currentClef.symbol,
-    CLEF.x,
+    clefX,
     staffYForIndex(currentClef.symbolIndex) - STAFF.lineGap * currentClef.symbolOffset,
   );
   ctx.textBaseline = "alphabetic";
+
+  drawKeySignature();
 
   if (targetNote) {
     const isMatch = detectedNote && detectedNote.name === targetNote.name;
@@ -185,6 +228,51 @@ function drawLedgerLines(index, x) {
       ctx.stroke();
     }
   }
+}
+
+function drawKeySignature() {
+  const signature = KEY_SIGNATURES[keySignature];
+  if (!signature || signature.count === 0) return;
+  const positions =
+    currentClef === CLEFS.treble ? KEY_SIGNATURE_POSITIONS.treble : KEY_SIGNATURE_POSITIONS.bass;
+  const indices = signature.type === "sharp" ? positions.sharps : positions.flats;
+  const xBase = STAFF.left + 36;
+  ctx.fillStyle = "#1c1b1f";
+  for (let i = 0; i < signature.count; i += 1) {
+    const index = indices[i];
+    const x = xBase + i * 22;
+    const y = staffYForIndex(index);
+    const yOffset = signature.type === "sharp" ? 12 : 6;
+    ctx.font = signature.type === "flat" ? "57px serif" : "42px serif";
+    ctx.fillText(signature.type === "sharp" ? "♯" : "♭", x, y + yOffset);
+  }
+}
+
+function setKeySignature(nextSignature) {
+  keySignature = nextSignature;
+  sigNaturalBtn.classList.toggle("active", keySignature === "natural");
+  sigNaturalBtn.setAttribute("aria-pressed", keySignature === "natural");
+  sigSharpBtn.classList.toggle("active", keySignature === "sharp");
+  sigSharpBtn.setAttribute("aria-pressed", keySignature === "sharp");
+  sigSharp2Btn.classList.toggle("active", keySignature === "sharp2");
+  sigSharp2Btn.setAttribute("aria-pressed", keySignature === "sharp2");
+  sigSharp3Btn.classList.toggle("active", keySignature === "sharp3");
+  sigSharp3Btn.setAttribute("aria-pressed", keySignature === "sharp3");
+  sigSharp4Btn.classList.toggle("active", keySignature === "sharp4");
+  sigSharp4Btn.setAttribute("aria-pressed", keySignature === "sharp4");
+  sigSharp5Btn.classList.toggle("active", keySignature === "sharp5");
+  sigSharp5Btn.setAttribute("aria-pressed", keySignature === "sharp5");
+  sigFlatBtn.classList.toggle("active", keySignature === "flat");
+  sigFlatBtn.setAttribute("aria-pressed", keySignature === "flat");
+  sigFlat2Btn.classList.toggle("active", keySignature === "flat2");
+  sigFlat2Btn.setAttribute("aria-pressed", keySignature === "flat2");
+  sigFlat3Btn.classList.toggle("active", keySignature === "flat3");
+  sigFlat3Btn.setAttribute("aria-pressed", keySignature === "flat3");
+  sigFlat4Btn.classList.toggle("active", keySignature === "flat4");
+  sigFlat4Btn.setAttribute("aria-pressed", keySignature === "flat4");
+  sigFlat5Btn.classList.toggle("active", keySignature === "flat5");
+  sigFlat5Btn.setAttribute("aria-pressed", keySignature === "flat5");
+  drawStaff();
 }
 
 function drawNote(note, color, isDetected = false, jitter = null) {
@@ -341,14 +429,6 @@ function tick() {
     pickRandomNote();
   }
 
-  if (detectedNote) {
-    detectedEl.textContent = formatNoteLabel(detectedNote);
-    frequencyEl.textContent = `${detectedFrequency.toFixed(1)} Hz`;
-  } else {
-    detectedEl.textContent = "—";
-    frequencyEl.textContent = "—";
-  }
-
   drawStaff();
 
   if (!matchLock && detectedNote && targetNote && detectedNote.name === targetNote.name) {
@@ -377,6 +457,39 @@ function setClef(nextClef) {
 
 trebleBtn.addEventListener("click", () => setClef(CLEFS.treble));
 bassBtn.addEventListener("click", () => setClef(CLEFS.bass));
+sigSharpBtn.addEventListener("click", () => {
+  setKeySignature("sharp");
+});
+sigSharp2Btn.addEventListener("click", () => {
+  setKeySignature("sharp2");
+});
+sigSharp3Btn.addEventListener("click", () => {
+  setKeySignature("sharp3");
+});
+sigSharp4Btn.addEventListener("click", () => {
+  setKeySignature("sharp4");
+});
+sigSharp5Btn.addEventListener("click", () => {
+  setKeySignature("sharp5");
+});
+sigFlatBtn.addEventListener("click", () => {
+  setKeySignature("flat");
+});
+sigFlat2Btn.addEventListener("click", () => {
+  setKeySignature("flat2");
+});
+sigFlat3Btn.addEventListener("click", () => {
+  setKeySignature("flat3");
+});
+sigFlat4Btn.addEventListener("click", () => {
+  setKeySignature("flat4");
+});
+sigFlat5Btn.addEventListener("click", () => {
+  setKeySignature("flat5");
+});
+sigNaturalBtn.addEventListener("click", () => {
+  setKeySignature("natural");
+});
 micFallbackBtn.addEventListener("click", startListening);
 canvas.addEventListener("click", (event) => {
   const rect = canvas.getBoundingClientRect();
@@ -390,4 +503,5 @@ window.addEventListener("resize", resizeCanvas);
 resizeCanvas();
 notePool = buildNotePool();
 setClef(CLEFS.treble);
+setKeySignature("natural");
 startListening();

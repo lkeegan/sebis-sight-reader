@@ -13,28 +13,89 @@
             <button id="clef-treble" class="clef-btn active" aria-pressed="true">𝄞</button>
             <button id="clef-bass" class="clef-btn" aria-pressed="false">𝄢</button>
           </div>
+          <div class="signature-toggle" role="group" aria-label="Key signature">
+            <button id="sig-natural" class="sig-btn active" aria-pressed="true">
+              <span class="sig-icon sig-natural">♮</span>
+            </button>
+            <button id="sig-sharp" class="sig-btn" aria-pressed="false">
+              <span class="sig-stack sharp">
+                <span class="sig-mark" style="--x: 0px; --y: 0px">♯</span>
+              </span>
+            </button>
+            <button id="sig-flat" class="sig-btn" aria-pressed="false">
+              <span class="sig-stack flat">
+                <span class="sig-mark" style="--x: 0px; --y: 0px">♭</span>
+              </span>
+            </button>
+            <button id="sig-sharp-2" class="sig-btn" aria-pressed="false">
+              <span class="sig-stack sharp">
+                <span class="sig-mark" style="--x: 0px; --y: 0px">♯</span>
+                <span class="sig-mark" style="--x: 0.45em; --y: 0.35em">♯</span>
+              </span>
+            </button>
+            <button id="sig-flat-2" class="sig-btn" aria-pressed="false">
+              <span class="sig-stack flat">
+                <span class="sig-mark" style="--x: 0px; --y: 0px">♭</span>
+                <span class="sig-mark" style="--x: 0.6em; --y: -0.35em">♭</span>
+              </span>
+            </button>
+            <button id="sig-sharp-3" class="sig-btn" aria-pressed="false">
+              <span class="sig-stack sharp">
+                <span class="sig-mark" style="--x: 0px; --y: 0px">♯</span>
+                <span class="sig-mark" style="--x: 0.45em; --y: 0.35em">♯</span>
+                <span class="sig-mark" style="--x: 0.9em; --y: -0.25em">♯</span>
+              </span>
+            </button>
+            <button id="sig-flat-3" class="sig-btn" aria-pressed="false">
+              <span class="sig-stack flat">
+                <span class="sig-mark" style="--x: 0px; --y: 0px">♭</span>
+                <span class="sig-mark" style="--x: 0.6em; --y: -0.35em">♭</span>
+                <span class="sig-mark" style="--x: 1.2em; --y: 0.25em">♭</span>
+              </span>
+            </button>
+            <button id="sig-sharp-4" class="sig-btn" aria-pressed="false">
+              <span class="sig-stack sharp">
+                <span class="sig-mark" style="--x: 0px; --y: 0px">♯</span>
+                <span class="sig-mark" style="--x: 0.45em; --y: 0.35em">♯</span>
+                <span class="sig-mark" style="--x: 0.9em; --y: -0.25em">♯</span>
+                <span class="sig-mark" style="--x: 1.35em; --y: 0.2em">♯</span>
+              </span>
+            </button>
+            <button id="sig-flat-4" class="sig-btn" aria-pressed="false">
+              <span class="sig-stack flat">
+                <span class="sig-mark" style="--x: 0px; --y: 0px">♭</span>
+                <span class="sig-mark" style="--x: 0.6em; --y: -0.35em">♭</span>
+                <span class="sig-mark" style="--x: 1.2em; --y: 0.25em">♭</span>
+                <span class="sig-mark" style="--x: 1.8em; --y: -0.25em">♭</span>
+              </span>
+            </button>
+            <button id="sig-sharp-5" class="sig-btn" aria-pressed="false">
+              <span class="sig-stack sharp">
+                <span class="sig-mark" style="--x: 0px; --y: 0px">♯</span>
+                <span class="sig-mark" style="--x: 0.45em; --y: 0.35em">♯</span>
+                <span class="sig-mark" style="--x: 0.9em; --y: -0.25em">♯</span>
+                <span class="sig-mark" style="--x: 1.35em; --y: 0.2em">♯</span>
+                <span class="sig-mark" style="--x: 1.8em; --y: -0.2em">♯</span>
+              </span>
+            </button>
+            <button id="sig-flat-5" class="sig-btn" aria-pressed="false">
+              <span class="sig-stack flat">
+                <span class="sig-mark" style="--x: 0px; --y: 0px">♭</span>
+                <span class="sig-mark" style="--x: 0.6em; --y: -0.35em">♭</span>
+                <span class="sig-mark" style="--x: 1.2em; --y: 0.25em">♭</span>
+                <span class="sig-mark" style="--x: 1.8em; --y: -0.25em">♭</span>
+                <span class="sig-mark" style="--x: 2.4em; --y: 0.15em">♭</span>
+              </span>
+            </button>
+          </div>
           <div class="status" id="status">Microphone off</div>
           <button id="mic-fallback" class="primary hidden">ENABLE MICROPHONE</button>
         </div>
       </header>
 
       <main class="stage">
-        <canvas id="staff" width="900" height="320" aria-label="Music staff"></canvas>
+        <canvas id="staff" width="900" height="420" aria-label="Music staff"></canvas>
         <div class="celebration" id="celebration" aria-live="polite"></div>
-        <div class="readout">
-          <div>
-            <span class="label">Target</span>
-            <span class="value" id="target-note">—</span>
-          </div>
-          <div>
-            <span class="label">Detected</span>
-            <span class="value" id="detected-note">—</span>
-          </div>
-          <div>
-            <span class="label">Frequency</span>
-            <span class="value" id="frequency">—</span>
-          </div>
-        </div>
       </main>
 
     </div>
