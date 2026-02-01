@@ -1,4 +1,5 @@
 import "./style.css";
+import confetti from "canvas-confetti";
 import { PitchDetector } from "pitchy";
 import {
   KEY_SIGNATURES,
@@ -74,7 +75,7 @@ let timeData = null;
 let detector = null;
 let clarity = 0;
 const recentPitches = [];
-const PITCH_WINDOW = 9;
+const PITCH_WINDOW = 5;
 let targetNote = null;
 let detectedNote = null;
 let detectedFrequency = null;
@@ -85,8 +86,8 @@ const MIN_HOLD_MS = 25;
 const MIN_PITCH_HZ = 27.5;
 const MAX_PITCH_HZ = 4186;
 const OCTAVE_TOLERANCE = 0.03;
-const CLARITY_THRESHOLD = 0.94;
-const RMS_THRESHOLD = 0.02;
+const CLARITY_THRESHOLD = 0.9;
+const RMS_THRESHOLD = 0.015;
 let celebrationUntil = 0;
 let nextNoteAt = 0;
 let matchLock = false;
@@ -437,6 +438,23 @@ function triggerMilestone() {
     milestoneSound.currentTime = 0;
     milestoneSound.play().catch(() => {});
   }
+  const end = performance.now() + 3000;
+  const confettiColors = ["#e24a4a", "#1e6bff", "#ffffff"];
+  (function burst() {
+    confetti({
+      particleCount: 14,
+      spread: 90,
+      startVelocity: 40,
+      ticks: 160,
+      gravity: 0.8,
+      scalar: 1,
+      colors: confettiColors,
+      origin: { x: Math.random(), y: 0 },
+    });
+    if (performance.now() < end) {
+      requestAnimationFrame(burst);
+    }
+  })();
   setTimeout(() => {
     milestoneEl.classList.remove("show");
   }, 3000);
