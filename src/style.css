@@ -107,7 +107,9 @@ body {
   display: grid;
 }
 
-.flow-step.clef-step {
+.flow-step.clef-step,
+.flow-step.key-step,
+.flow-step.level-step {
   place-items: center;
   text-align: center;
   gap: 18px;
@@ -131,8 +133,9 @@ body {
 }
 
 .clef-toggle,
-.signature-toggle {
-  justify-items: start;
+.signature-toggle,
+.level-toggle {
+  justify-items: center;
 }
 
 .clef-btn {
