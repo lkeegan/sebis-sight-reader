@@ -60,6 +60,8 @@ let analyser = null;
 let timeData = null;
 let detector = null;
 let clarity = 0;
+const recentPitches = [];
+const PITCH_WINDOW = 9;
 let targetNote = null;
 let detectedNote = null;
 let detectedFrequency = null;
@@ -67,6 +69,10 @@ let listening = false;
 let pendingNote = null;
 let pendingSince = 0;
 const MIN_HOLD_MS = 50;
+const MIN_PITCH_HZ = 80;
+const MAX_PITCH_HZ = 1000;
+const OCTAVE_TOLERANCE = 0.03;
+const CLARITY_THRESHOLD = 0.9;
 
 function resizeCanvas() {
   const ratio = window.devicePixelRatio || 1;
@@ -242,16 +248,34 @@ function detectPitch() {
 
   const [pitch, detectedClarity] = detector.findPitch(timeData, audioContext.sampleRate);
   clarity = detectedClarity;
-  if (!pitch || clarity < 0.8) {
+  if (!pitch || clarity < CLARITY_THRESHOLD || pitch < MIN_PITCH_HZ || pitch > MAX_PITCH_HZ) {
     detectedNote = null;
     detectedFrequency = null;
     pendingNote = null;
     pendingSince = 0;
+    recentPitches.length = 0;
     return;
   }
 
-  detectedFrequency = pitch;
-  const baseNote = frequencyToNote(pitch);
+  let adjustedPitch = pitch;
+  if (detectedFrequency) {
+    if (Math.abs(adjustedPitch * 2 - detectedFrequency) / detectedFrequency < OCTAVE_TOLERANCE) {
+      adjustedPitch *= 2;
+    } else if (Math.abs(adjustedPitch / 2 - detectedFrequency) / detectedFrequency < OCTAVE_TOLERANCE) {
+      adjustedPitch /= 2;
+    }
+  }
+
+  recentPitches.push(adjustedPitch);
+  if (recentPitches.length > PITCH_WINDOW) {
+    recentPitches.shift();
+  }
+
+  const sorted = [...recentPitches].sort((a, b) => a - b);
+  const medianPitch = sorted[Math.floor(sorted.length / 2)];
+
+  detectedFrequency = medianPitch;
+  const baseNote = frequencyToNote(medianPitch);
   const computedIndex = noteNameToStaffIndex(baseNote.name);
   const candidateNote = {
     ...baseNote,

@@ -1,0 +1,9 @@
+node_modules/
+.idea/
+.DS_Store
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.vscode/
+pnpm-workspace.yaml
