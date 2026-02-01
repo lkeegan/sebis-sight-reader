@@ -492,9 +492,7 @@ function setFlow(step) {
   levelStep?.classList.toggle("active", step === "level");
   stageEl?.classList.toggle("hidden", step !== "session");
   statusEl?.classList.toggle("hidden", step !== "session");
-  if (step === "session") {
-    sessionActive = true;
-  }
+  sessionActive = step === "session";
 }
 
 async function startListening() {
