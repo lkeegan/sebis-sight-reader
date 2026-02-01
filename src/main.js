@@ -492,6 +492,7 @@ function setFlow(step) {
   levelStep?.classList.toggle("active", step === "level");
   stageEl?.classList.toggle("hidden", step !== "session");
   statusEl?.classList.toggle("hidden", step !== "session");
+  micFallbackBtn?.classList.toggle("hidden", step !== "session");
   sessionActive = step === "session";
 }
 
