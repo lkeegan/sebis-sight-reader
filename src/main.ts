@@ -28,8 +28,10 @@ const dom = {
   clefTenor: document.getElementById("clef-tenor") as HTMLButtonElement | null,
   sigSharp: document.getElementById("sig-sharp") as HTMLButtonElement | null,
   sigSharp2: document.getElementById("sig-sharp-2") as HTMLButtonElement | null,
+  sigSharp3: document.getElementById("sig-sharp-3") as HTMLButtonElement | null,
   sigFlat: document.getElementById("sig-flat") as HTMLButtonElement | null,
   sigFlat2: document.getElementById("sig-flat-2") as HTMLButtonElement | null,
+  sigFlat3: document.getElementById("sig-flat-3") as HTMLButtonElement | null,
   sigNatural: document.getElementById("sig-natural") as HTMLButtonElement | null,
   level1: document.getElementById("level-1") as HTMLButtonElement | null,
   level2: document.getElementById("level-2") as HTMLButtonElement | null,
@@ -164,8 +166,10 @@ function setKeySignature(nextSignature: KeySignatureKey) {
   setPressed(dom.sigNatural, keySignature === "natural");
   setPressed(dom.sigSharp, keySignature === "sharp");
   setPressed(dom.sigSharp2, keySignature === "sharp2");
+  setPressed(dom.sigSharp3, keySignature === "sharp3");
   setPressed(dom.sigFlat, keySignature === "flat");
   setPressed(dom.sigFlat2, keySignature === "flat2");
+  setPressed(dom.sigFlat3, keySignature === "flat3");
   if (targetNote) {
     targetNote = adjustNoteForKeyChange(targetNote, previousSignature, keySignature, currentClef.baseNote);
   }
@@ -188,10 +192,6 @@ function triggerCelebration() {
   const now = performance.now();
   celebrationUntil = now + 700;
   nextNoteAt = now + 1000;
-  if (dom.celebration) {
-    dom.celebration.textContent = "Well done!";
-    dom.celebration.classList.add("show");
-  }
   startFlyAway();
 
   correctCount += 1;
@@ -563,8 +563,16 @@ dom.sigFlat?.addEventListener("click", () => {
   setKeySignature("flat");
   setFlow("level");
 });
+dom.sigSharp3?.addEventListener("click", () => {
+  setKeySignature("sharp3");
+  setFlow("level");
+});
 dom.sigFlat2?.addEventListener("click", () => {
   setKeySignature("flat2");
+  setFlow("level");
+});
+dom.sigFlat3?.addEventListener("click", () => {
+  setKeySignature("flat3");
   setFlow("level");
 });
 dom.sigNatural?.addEventListener("click", () => {
