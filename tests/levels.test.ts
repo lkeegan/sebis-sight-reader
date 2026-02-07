@@ -9,6 +9,8 @@ import {
 
 const trebleBase = { letterIndex: 2, octave: 4 };
 const bassBase = { letterIndex: 4, octave: 2 };
+const altoBase = { letterIndex: 3, octave: 3 };
+const tenorBase = { letterIndex: 1, octave: 3 };
 
 describe("level note pools", () => {
   it("treble level 1 is C4 to A5, naturals only", () => {
@@ -88,5 +90,65 @@ describe("level note pools", () => {
     const names = new Set(pool.map((note) => note.name));
     expect(names.has("F##3")).toBe(true);
     expect(names.has("Ebb3")).toBe(true);
+  });
+
+  it("alto level 1 is D3 to H4, naturals only", () => {
+    const pool = buildNotePoolForLevel("alto", altoBase, 1);
+    const names = new Set(pool.map((note) => note.name));
+    expect(names.has("D3")).toBe(true);
+    expect(names.has("H4")).toBe(true);
+    expect(names.has("C3")).toBe(false);
+    expect(names.has("C5")).toBe(false);
+    expect(names.has("D#3")).toBe(false);
+  });
+
+  it("alto level 2 adds accidentals within the same range", () => {
+    const pool = buildNotePoolForLevel("alto", altoBase, 2);
+    const names = new Set(pool.map((note) => note.name));
+    expect(names.has("D3")).toBe(true);
+    expect(names.has("H4")).toBe(true);
+    expect(names.has("F#3")).toBe(true);
+    expect(names.has("Gb3")).toBe(true);
+    expect(names.has("C3")).toBe(false);
+  });
+
+  it("alto level 3 expands one octave and includes accidentals", () => {
+    const range = getRangeForLevel("alto", altoBase, 3);
+    const pool = buildNotePoolForLevel("alto", altoBase, 3);
+    const names = new Set(pool.map((note) => note.name));
+    const minName = staffIndexToNoteName(range.minIndex, altoBase);
+    const maxName = staffIndexToNoteName(range.maxIndex, altoBase);
+    expect(names.has(minName)).toBe(true);
+    expect(names.has(maxName)).toBe(true);
+  });
+
+  it("tenor level 1 is H2 to G4, naturals only", () => {
+    const pool = buildNotePoolForLevel("tenor", tenorBase, 1);
+    const names = new Set(pool.map((note) => note.name));
+    expect(names.has("H2")).toBe(true);
+    expect(names.has("G4")).toBe(true);
+    expect(names.has("A2")).toBe(false);
+    expect(names.has("A4")).toBe(false);
+    expect(names.has("C#3")).toBe(false);
+  });
+
+  it("tenor level 2 adds accidentals within the same range", () => {
+    const pool = buildNotePoolForLevel("tenor", tenorBase, 2);
+    const names = new Set(pool.map((note) => note.name));
+    expect(names.has("H2")).toBe(true);
+    expect(names.has("G4")).toBe(true);
+    expect(names.has("F#3")).toBe(true);
+    expect(names.has("Gb3")).toBe(true);
+    expect(names.has("A2")).toBe(false);
+  });
+
+  it("tenor level 3 expands one octave and includes accidentals", () => {
+    const range = getRangeForLevel("tenor", tenorBase, 3);
+    const pool = buildNotePoolForLevel("tenor", tenorBase, 3);
+    const names = new Set(pool.map((note) => note.name));
+    const minName = staffIndexToNoteName(range.minIndex, tenorBase);
+    const maxName = staffIndexToNoteName(range.maxIndex, tenorBase);
+    expect(names.has(minName)).toBe(true);
+    expect(names.has(maxName)).toBe(true);
   });
 });
