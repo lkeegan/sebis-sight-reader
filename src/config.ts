@@ -41,28 +41,28 @@ export const CLEFS: { treble: ClefDefinition; bass: ClefDefinition; alto: ClefDe
     symbol: "𝄞",
     baseNote: { letterIndex: 2, octave: 4 }, // E4 on the bottom line.
     symbolIndex: 2,
-    symbolOffset: 0.88,
+    symbolOffset: 0.1,
   },
   bass: {
     name: "Bass",
     symbol: "𝄢",
     baseNote: { letterIndex: 4, octave: 2 }, // G2 on the bottom line.
     symbolIndex: 6,
-    symbolOffset: -0.60,
+    symbolOffset: -1.5,
   },
   alto: {
     name: "Alto",
     symbol: "𝄡",
     baseNote: { letterIndex: 3, octave: 3 }, // F3 on the bottom line.
     symbolIndex: 4, // Middle line = C4.
-    symbolOffset: 0,
+    symbolOffset: -0.9,
   },
   tenor: {
     name: "Tenor",
     symbol: "𝄡",
     baseNote: { letterIndex: 1, octave: 3 }, // D3 on the bottom line.
     symbolIndex: 6, // 4th line = C4.
-    symbolOffset: 0,
+    symbolOffset: -0.9,
   },
 };
 

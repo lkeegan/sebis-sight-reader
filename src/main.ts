@@ -460,6 +460,8 @@ function tick() {
 }
 
 function playNoteSound(note: Note) {
+  if (playbackActive) return;
+
   const noteName = effectiveNoteName(note, keySignature);
   if (!noteName) return;
   const midi = noteNameToMidi(noteName);
@@ -484,6 +486,7 @@ function playNoteSound(note: Note) {
   const release = 0.4;
   const sustainDuration = 0.24;
   const totalDuration = attack + decay + sustainDuration + release;
+  const cooldownMs = 300;
   const now = ctx.currentTime;
 
   masterGain.gain.linearRampToValueAtTime(0.35, now + attack);
@@ -508,6 +511,7 @@ function playNoteSound(note: Note) {
   playbackActive = true;
   detectedNote = null;
   detectedFrequency = null;
+  dom.playNote?.classList.add("active");
   if (dom.status) dom.status.textContent = "Playing...";
 
   setTimeout(() => {
@@ -515,8 +519,9 @@ function playNoteSound(note: Note) {
     recentPitches.length = 0;
     pendingNote = null;
     pendingSince = 0;
+    dom.playNote?.classList.remove("active");
     if (dom.status && listening) dom.status.textContent = "Listening\u2026";
-  }, totalDuration * 1000);
+  }, totalDuration * 1000 + cooldownMs);
 }
 
 function setClef(nextClef: typeof CLEFS.treble) {
